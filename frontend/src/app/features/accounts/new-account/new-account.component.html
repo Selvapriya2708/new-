@@ -1,0 +1,101 @@
+<div class="new-account-container">
+  <div class="page-header">
+    <h1>Open New Account</h1>
+  </div>
+  
+  <mat-card class="new-account-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>add_circle</mat-icon>
+      <mat-card-title>Apply for a New Account</mat-card-title>
+      <mat-card-subtitle>Fill in the details to open a new account</mat-card-subtitle>
+    </mat-card-header>
+    
+    <img mat-card-image src="https://pixabay.com/get/g413da6f8a7fa8abf1e880da3eb8079fdc71eefe6eb08dfc28c8ff63c677e9b840ec58a626e13041d438286f9a861b3d2951cd2b1c03396fcf8a189db97a24f87_1280.jpg" alt="Banking" class="account-image">
+    
+    <mat-card-content>
+      <form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="account-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Account Type</mat-label>
+          <mat-select formControlName="accountType">
+            <mat-option *ngFor="let type of accountTypes" [value]="type.value">
+              {{ type.viewValue }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Select the type of account you want to open</mat-hint>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Initial Deposit</mat-label>
+          <input matInput type="number" formControlName="initialDeposit">
+          <mat-icon matSuffix>account_balance_wallet</mat-icon>
+          <mat-hint>Minimum deposit: {{ formatCurrency(getMinimumInitialDeposit()) }}</mat-hint>
+          <mat-error *ngIf="accountForm.get('initialDeposit')?.hasError('required')">
+            Initial deposit is required
+          </mat-error>
+          <mat-error *ngIf="accountForm.get('initialDeposit')?.hasError('min')">
+            Minimum deposit of {{ formatCurrency(getMinimumInitialDeposit()) }} required
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field *ngIf="accountForm.value.accountType === 'FIXED_DEPOSIT'" appearance="outline" class="full-width">
+          <mat-label>Term Period</mat-label>
+          <mat-select formControlName="term">
+            <mat-option *ngFor="let term of fdTerms" [value]="term.value">
+              {{ term.viewValue }} ({{ formatInterestRate(getInterestRateForTerm(term.value)) }})
+            </mat-option>
+          </mat-select>
+          <mat-hint>Select the term period for your fixed deposit</mat-hint>
+        </mat-form-field>
+        
+        <div *ngIf="accountForm.value.accountType === 'FIXED_DEPOSIT'" class="maturity-calculation">
+          <p class="calculation-label">Maturity Amount (at the end of term):</p>
+          <p class="calculation-value">{{ calculateMaturityAmount() }}</p>
+        </div>
+        
+        <!-- Account type specific information -->
+        <div [ngSwitch]="accountForm.value.accountType" class="account-type-info">
+          <div *ngSwitchCase="'SAVINGS'" class="info-box">
+            <h3>Savings Account Features</h3>
+            <ul>
+              <li>Earn interest on your deposits</li>
+              <li>Minimum balance requirement applies</li>
+              <li>Daily withdrawal limit applies</li>
+              <li>Free online banking services</li>
+              <li>Monthly e-statements</li>
+            </ul>
+          </div>
+          
+          <div *ngSwitchCase="'CURRENT'" class="info-box">
+            <h3>Current Account Features</h3>
+            <ul>
+              <li>No interest earned on deposits</li>
+              <li>Option for zero balance account</li>
+              <li>Overdraft facility available</li>
+              <li>Free online banking services</li>
+              <li>Unlimited transactions</li>
+            </ul>
+          </div>
+          
+          <div *ngSwitchCase="'FIXED_DEPOSIT'" class="info-box">
+            <h3>Fixed Deposit Features</h3>
+            <ul>
+              <li>Higher interest rates compared to savings</li>
+              <li>Fixed term commitment</li>
+              <li>Cannot withdraw before maturity</li>
+              <li>Interest paid at maturity</li>
+              <li>Option to renew on maturity</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isLoading" class="submit-button">
+            <mat-icon>add_circle</mat-icon>
+            <span *ngIf="!isLoading">Open Account</span>
+            <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

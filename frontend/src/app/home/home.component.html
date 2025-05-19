@@ -1,0 +1,113 @@
+<div class="home-container">
+  <mat-card class="greeting-card">
+    <mat-card-content>
+      <div class="greeting-content">
+        <div class="greeting-text">
+          <h1>Welcome back, {{userName}}!</h1>
+          <p>Manage your accounts and transactions securely with iNB Banking</p>
+        </div>
+        <img src="https://pixabay.com/get/gf6966247f94bfe4a3fcffbba972fdffe230a465a0415647b01abea1d909b9d145295340d337e16c3cedea70ae54d2f81673ad5ae1966f2b8cb401e776bac70b3_1280.jpg" 
+             alt="Banking Dashboard" class="greeting-image">
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="section-header">
+    <h2>Your Accounts</h2>
+    <div class="quick-actions">
+      <button mat-raised-button color="primary" (click)="navigateToChequeDeposit()">
+        <mat-icon>loyalty</mat-icon>
+        Deposit Cheque
+      </button>
+      <button mat-raised-button color="primary" (click)="navigateToBillPayment()">
+        <mat-icon>receipt</mat-icon>
+        Pay Bills
+      </button>
+      <button mat-raised-button color="primary" (click)="navigateToMoneyTransfer()">
+        <mat-icon>swap_horiz</mat-icon>
+        Transfer Money
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your accounts...</p>
+  </div>
+
+  <div *ngIf="!loading && accounts.length === 0" class="no-accounts">
+    <mat-icon>account_balance</mat-icon>
+    <h3>No accounts found</h3>
+    <p>Your account registration is being processed. Please check back later.</p>
+  </div>
+
+  <div *ngIf="!loading && accounts.length > 0" class="accounts-grid">
+    <mat-card *ngFor="let account of accounts" class="account-card" [ngClass]="{'current-account': account.type === 'CURRENT', 'savings-account': account.type === 'SAVINGS', 'fixed-deposit': account.type === 'FIXED_DEPOSIT'}">
+      <mat-card-header>
+        <div mat-card-avatar>
+          <mat-icon class="account-icon">{{ account.type === 'SAVINGS' ? 'savings' : (account.type === 'CURRENT' ? 'account_balance_wallet' : 'lock_clock') }}</mat-icon>
+        </div>
+        <mat-card-title>{{ getAccountTypeLabel(account.type) }}</mat-card-title>
+        <mat-card-subtitle>{{ account.accountNumber }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="account-balance">
+          <p class="balance-label">Available Balance</p>
+          <h2 class="balance-amount">{{ getAccountBalance(account) }}</h2>
+        </div>
+        
+        <div *ngIf="account.type === 'SAVINGS'" class="account-info">
+          <p><span class="info-label">Interest Rate:</span> {{ account.interestRate }}%</p>
+          <p><span class="info-label">Min Balance:</span> ₹{{ account.minimumBalance }}</p>
+        </div>
+        
+        <div *ngIf="account.type === 'CURRENT'" class="account-info">
+          <p><span class="info-label">Overdraft Limit:</span> ₹{{ account.overdraftLimit || 0 }}</p>
+          <p *ngIf="account.overdraftLimit"><span class="info-label">Overdraft Rate:</span> {{ account.overdraftInterestRate }}%</p>
+        </div>
+        
+        <div *ngIf="account.type === 'FIXED_DEPOSIT'" class="account-info">
+          <p><span class="info-label">Interest Rate:</span> {{ account.interestRate }}%</p>
+          <p><span class="info-label">Maturity Date:</span> {{ account.maturityDate | date }}</p>
+          <p><span class="info-label">Term:</span> {{ account.term }} months</p>
+        </div>
+      </mat-card-content>
+      
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="viewAccountDetails(account.id)">VIEW DETAILS</button>
+        <button mat-button color="primary" (click)="viewMiniStatement(account.id)">MINI STATEMENT</button>
+        <button mat-button color="primary" (click)="viewDetailedStatement(account.id)">DETAILED STATEMENT</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="recent-activity-section">
+    <h2>Banking Features</h2>
+    <div class="features-grid">
+      <mat-card class="feature-card" (click)="navigateToChequeDeposit()">
+        <mat-icon>description</mat-icon>
+        <h3>Cheque Deposit</h3>
+        <p>Submit your cheque details online for processing</p>
+      </mat-card>
+      
+      <mat-card class="feature-card" (click)="navigateToBillPayment()">
+        <mat-icon>receipt</mat-icon>
+        <h3>Bill Payments</h3>
+        <p>Pay your utility bills and schedule future payments</p>
+      </mat-card>
+      
+      <mat-card class="feature-card" (click)="navigateToMoneyTransfer()">
+        <mat-icon>swap_horiz</mat-icon>
+        <h3>Money Transfer</h3>
+        <p>Transfer funds to other iNB accounts instantly</p>
+      </mat-card>
+      
+      <mat-card class="feature-card" routerLink="/accounts">
+        <mat-icon>account_balance</mat-icon>
+        <h3>Accounts</h3>
+        <p>View and manage all your banking accounts</p>
+      </mat-card>
+    </div>
+  </div>
+</div>

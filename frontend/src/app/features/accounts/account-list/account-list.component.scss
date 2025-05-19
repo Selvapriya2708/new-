@@ -1,0 +1,71 @@
+.page-title {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+
+.account-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid var(--border-color);
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+  
+  .account-type-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--primary-color);
+  }
+}
+
+.interest-info {
+  .badge {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+}
+
+.account-summary {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  
+  .total-balance {
+    color: var(--success-color);
+    font-weight: 600;
+  }
+}
+
+.account-table {
+  th {
+    font-weight: 500;
+    color: var(--dark-color);
+  }
+  
+  tbody tr {
+    vertical-align: middle;
+  }
+}
+
+@media (max-width: 768px) {
+  .account-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .interest-info {
+      margin-top: 8px;
+    }
+  }
+}

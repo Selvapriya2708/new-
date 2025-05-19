@@ -1,0 +1,204 @@
+.page-title {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+// Interest Rate Table
+.rate-table {
+  th, td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  th {
+    background-color: var(--primary-color);
+    color: white;
+  }
+}
+
+// Fixed Deposit Note
+.fd-note {
+  background-color: #e8f4f8;
+  border-radius: 8px;
+  padding: 20px;
+  height: 100%;
+  
+  h5 {
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  ul {
+    padding-left: 20px;
+    
+    li {
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+  }
+}
+
+// Summary Cards
+.summary-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+  
+  .summary-content {
+    display: flex;
+    align-items: center;
+  }
+  
+  .summary-icon {
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    
+    svg {
+      width: 30px;
+      height: 30px;
+      color: white;
+    }
+  }
+  
+  .summary-details {
+    color: white;
+  }
+  
+  .summary-title {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 5px;
+  }
+  
+  .summary-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+  
+  .summary-description {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 0;
+  }
+}
+
+// Gradient Backgrounds
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #2c80d3 100%);
+}
+
+.bg-gradient-success {
+  background: linear-gradient(135deg, var(--success-color) 0%, #1a9c5f 100%);
+}
+
+.bg-gradient-info {
+  background: linear-gradient(135deg, var(--info-color) 0%, #2574a9 100%);
+}
+
+// Fixed Deposit Card
+.fd-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  height: 100%;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+  
+  .fd-card-header {
+    background-color: var(--light-color);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    
+    h5 {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+  }
+  
+  .fd-card-body {
+    padding: 15px;
+  }
+  
+  .fd-detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    
+    &:last-of-type {
+      border-bottom: none;
+      margin-bottom: 15px;
+    }
+  }
+  
+  .fd-label {
+    font-weight: 500;
+    color: var(--text-color);
+  }
+  
+  .fd-value {
+    font-weight: 600;
+  }
+  
+  .fd-maturity-amount {
+    color: var(--success-color);
+  }
+  
+  .fd-interest {
+    color: var(--accent-color);
+  }
+  
+  .fd-progress-container {
+    margin-top: 15px;
+  }
+  
+  .fd-progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+  }
+  
+  .progress {
+    height: 12px;
+    border-radius: 6px;
+  }
+}
+
+// Responsive Adjustments
+@media (max-width: 768px) {
+  .fd-note {
+    margin-top: 20px;
+  }
+  
+  .summary-card {
+    margin-bottom: 15px;
+  }
+}

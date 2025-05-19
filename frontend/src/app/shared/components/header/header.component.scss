@@ -1,0 +1,39 @@
+.header-toolbar {
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  
+  .app-title {
+    margin-left: 16px;
+    font-size: 20px;
+    font-weight: 500;
+  }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  
+  .user-name {
+    margin-right: 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .user-name {
+    display: none;
+  }
+  
+  .app-title {
+    font-size: 16px;
+  }
+}

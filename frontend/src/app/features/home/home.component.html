@@ -1,0 +1,116 @@
+<div class="home-container">
+  <div class="welcome-section">
+    <div class="welcome-message">
+      <h1>Welcome, {{ currentUser?.firstName }} {{ currentUser?.lastName }}</h1>
+      <p>Manage your accounts, transfer money, and more with iNB Internet Banking</p>
+    </div>
+    
+    <div class="welcome-actions">
+      <button mat-raised-button color="primary" (click)="navigateToNewAccount()">
+        <mat-icon>add_circle</mat-icon>
+        New Account
+      </button>
+    </div>
+  </div>
+  
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner [diameter]="40"></mat-spinner>
+    <p>Loading your accounts...</p>
+  </div>
+  
+  <div *ngIf="!isLoading && accounts.length === 0" class="no-accounts">
+    <mat-icon>account_balance</mat-icon>
+    <h2>No accounts found</h2>
+    <p>You don't have any active accounts yet. Your registration request may still be under review.</p>
+    <button mat-raised-button color="primary" (click)="navigateToNewAccount()">
+      Apply for a New Account
+    </button>
+  </div>
+  
+  <div *ngIf="!isLoading && accounts.length > 0" class="accounts-overview">
+    <div class="balance-card">
+      <div class="balance-header">
+        <h2>Total Balance</h2>
+      </div>
+      <div class="balance-amount">
+        {{ formatCurrency(totalBalance) }}
+      </div>
+      <div class="balance-accounts">
+        {{ accounts.length }} Active Accounts
+      </div>
+    </div>
+    
+    <div class="account-cards">
+      <mat-card *ngFor="let account of accounts" class="account-card" (click)="viewAccountDetails(account.id)">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>{{ account.accountType === 'SAVINGS' ? 'savings' : (account.accountType === 'CURRENT' ? 'account_balance' : 'schedule') }}</mat-icon>
+          <mat-card-title>{{ getAccountTypeLabel(account.accountType) }}</mat-card-title>
+          <mat-card-subtitle>{{ account.accountNumber }}</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="account-balance">
+            <p class="balance-label">Available Balance</p>
+            <p class="balance-value">{{ formatCurrency(account.balance) }}</p>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="recent-transactions">
+            <h3 class="section-title">Recent Transactions</h3>
+            
+            <div *ngIf="recentTransactions[account.id] && recentTransactions[account.id].length > 0" class="transaction-list">
+              <div *ngFor="let transaction of recentTransactions[account.id].slice(0, 3)" class="transaction-item">
+                <div class="transaction-details">
+                  <span class="transaction-date">{{ transaction.transactionDate | date:'MMM d, yyyy' }}</span>
+                  <span class="transaction-description">{{ transaction.description }}</span>
+                </div>
+                <span class="transaction-amount" [style.color]="getTransactionColor(transaction.amount)">
+                  {{ formatCurrency(transaction.amount) }}
+                </span>
+              </div>
+              
+              <button mat-button color="primary" (click)="$event.stopPropagation(); navigateToTransactions(account.id)">
+                View All Transactions
+              </button>
+            </div>
+            
+            <div *ngIf="!recentTransactions[account.id] || recentTransactions[account.id].length === 0" class="no-transactions">
+              <p>No recent transactions</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+  
+  <div *ngIf="!isLoading && accounts.length > 0" class="quick-actions">
+    <h2>Quick Actions</h2>
+    
+    <div class="action-cards">
+      <mat-card class="action-card" routerLink="/transfers">
+        <mat-icon>send</mat-icon>
+        <h3>Money Transfer</h3>
+        <p>Transfer funds to another account</p>
+      </mat-card>
+      
+      <mat-card class="action-card" routerLink="/bills/payment">
+        <mat-icon>receipt</mat-icon>
+        <h3>Bill Payments</h3>
+        <p>Pay your utility bills</p>
+      </mat-card>
+      
+      <mat-card class="action-card" routerLink="/cheques/deposit">
+        <mat-icon>money</mat-icon>
+        <h3>Cheque Deposit</h3>
+        <p>Deposit a cheque</p>
+      </mat-card>
+      
+      <mat-card class="action-card" routerLink="/accounts/new">
+        <mat-icon>add_circle</mat-icon>
+        <h3>New Account</h3>
+        <p>Apply for a new account</p>
+      </mat-card>
+    </div>
+  </div>
+</div>

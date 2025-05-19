@@ -1,0 +1,225 @@
+<div class="cheque-deposit-container">
+  <div class="page-header">
+    <h1>Cheque Deposit</h1>
+    <p>Fill in the cheque details, print the slip, and send it along with the cheque to the bank.</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your accounts...</p>
+  </div>
+
+  <div *ngIf="!loading" class="cheque-content">
+    <div class="deposit-section">
+      <mat-card class="cheque-form-card">
+        <mat-card-header>
+          <mat-card-title>Deposit Cheque</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="chequeForm" (ngSubmit)="onSubmit()">
+            <div class="form-columns">
+              <div class="form-column">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Cheque Number</mat-label>
+                  <input matInput formControlName="chequeNumber" placeholder="Enter 6-digit cheque number">
+                  <mat-error *ngIf="chequeForm.get('chequeNumber').hasError('required')">
+                    Cheque number is required
+                  </mat-error>
+                  <mat-error *ngIf="chequeForm.get('chequeNumber').hasError('pattern')">
+                    Cheque number must be a 6-digit number
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Amount</mat-label>
+                  <input matInput type="number" formControlName="amount" placeholder="Enter cheque amount">
+                  <span matPrefix>₹&nbsp;</span>
+                  <mat-error *ngIf="chequeForm.get('amount').hasError('required')">
+                    Amount is required
+                  </mat-error>
+                  <mat-error *ngIf="chequeForm.get('amount').hasError('min')">
+                    Amount must be greater than 0
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Bank Name</mat-label>
+                  <input matInput formControlName="bankName" placeholder="Enter bank name">
+                  <mat-error *ngIf="chequeForm.get('bankName').hasError('required')">
+                    Bank name is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-column">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Branch Name</mat-label>
+                  <input matInput formControlName="branchName" placeholder="Enter branch name">
+                  <mat-error *ngIf="chequeForm.get('branchName').hasError('required')">
+                    Branch name is required
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Cheque Date</mat-label>
+                  <input matInput [matDatepicker]="picker" formControlName="chequeDate">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                  <mat-error *ngIf="chequeForm.get('chequeDate').hasError('required')">
+                    Cheque date is required
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Deposit to Account</mat-label>
+                  <mat-select formControlName="accountId">
+                    <mat-option *ngFor="let account of accounts" [value]="account.id">
+                      {{ account.accountNumber }} ({{ account.type === 'SAVINGS' ? 'Savings' : 'Current' }})
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="chequeForm.get('accountId').hasError('required')">
+                    Account is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="cheque-image-container">
+              <div class="cheque-image">
+                <img src="https://pixabay.com/get/g413da6f8a7fa8abf1e880da3eb8079fdc71eefe6eb08dfc28c8ff63c677e9b840ec58a626e13041d438286f9a861b3d2951cd2b1c03396fcf8a189db97a24f87_1280.jpg" 
+                     alt="Sample Cheque" class="sample-cheque">
+                <div class="cheque-instructions">
+                  <h3>Instructions</h3>
+                  <ol>
+                    <li>Fill in all the details accurately</li>
+                    <li>Print the deposit slip after submission</li>
+                    <li>Attach the slip to your cheque</li>
+                    <li>Send it to your nearest iNB branch</li>
+                    <li>Track the status online</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="chequeForm.invalid || submitting">
+                <mat-spinner diameter="20" *ngIf="submitting" class="spinner"></mat-spinner>
+                <span *ngIf="!submitting">Submit Cheque</span>
+              </button>
+              <button mat-button type="button" (click)="resetForm()">Reset</button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="history-section">
+      <mat-card class="cheque-history-card">
+        <mat-card-header>
+          <mat-card-title>Cheque History</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="chequeHistoryLoading" class="loading-container">
+            <mat-spinner diameter="30"></mat-spinner>
+            <p>Loading cheque history...</p>
+          </div>
+
+          <div *ngIf="!chequeHistoryLoading && cheques.length === 0" class="no-cheques">
+            <mat-icon>description</mat-icon>
+            <p>No cheque deposits found</p>
+          </div>
+
+          <div *ngIf="!chequeHistoryLoading && cheques.length > 0" class="cheque-list">
+            <div *ngFor="let cheque of cheques" class="cheque-item">
+              <div class="cheque-details">
+                <div class="cheque-header">
+                  <span class="cheque-number">Cheque #{{ cheque.chequeNumber }}</span>
+                  <span class="cheque-amount">{{ getFormattedAmount(cheque.amount) }}</span>
+                </div>
+                <div class="cheque-info">
+                  <div class="info-row">
+                    <span class="info-label">Bank:</span>
+                    <span class="info-value">{{ cheque.bankName }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Branch:</span>
+                    <span class="info-value">{{ cheque.branchName }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Date:</span>
+                    <span class="info-value">{{ cheque.chequeDate | date }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Account:</span>
+                    <span class="info-value">{{ getAccountById(cheque.accountId)?.accountNumber || 'Unknown' }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Submitted:</span>
+                    <span class="info-value">{{ cheque.submissionDate | date }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="cheque-status-section">
+                <div class="status-badge" [ngClass]="getStatusClass(cheque.status)">
+                  {{ cheque.status.replace('_', ' ') }}
+                </div>
+                <button mat-button color="primary" (click)="printChequeSlip(cheque)" *ngIf="cheque.status === 'NOT_RECEIVED'">
+                  <mat-icon>print</mat-icon>
+                  Print Slip
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <mat-card class="info-card">
+      <mat-card-content>
+        <h2>About Cheque Deposits</h2>
+        <p>
+          When you deposit a cheque, it typically takes 3 working days for the funds to be available in your account. The status of your cheque will be updated as it progresses through the clearing process.
+        </p>
+        <div class="status-info">
+          <div class="status-item">
+            <div class="status-indicator not-received"></div>
+            <div class="status-text">
+              <h3>Not Received</h3>
+              <p>Your cheque has been submitted online but not yet received by the bank.</p>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator received"></div>
+            <div class="status-text">
+              <h3>Received</h3>
+              <p>The bank has received your cheque and is processing it.</p>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator clearing"></div>
+            <div class="status-text">
+              <h3>Sent for Clearance</h3>
+              <p>Your cheque has been sent to the clearing house and is awaiting clearance.</p>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator cleared"></div>
+            <div class="status-text">
+              <h3>Cleared</h3>
+              <p>The cheque has cleared and the funds have been credited to your account.</p>
+            </div>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator bounced"></div>
+            <div class="status-text">
+              <h3>Bounced</h3>
+              <p>The cheque has bounced and a fee may be charged to your account.</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

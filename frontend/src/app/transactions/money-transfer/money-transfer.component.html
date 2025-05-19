@@ -1,0 +1,187 @@
+<div class="money-transfer-container">
+  <div class="page-header">
+    <h1>Money Transfer</h1>
+    <p>Transfer money to other iNB accounts quickly and securely</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your accounts...</p>
+  </div>
+
+  <div *ngIf="!loading" class="transfer-content">
+    <div class="transfer-section">
+      <mat-card class="transfer-form-card">
+        <mat-card-header>
+          <mat-card-title>Transfer Money</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+            <div class="form-columns">
+              <div class="form-column">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>From Account</mat-label>
+                  <mat-select formControlName="sourceAccountId">
+                    <mat-option *ngFor="let account of accounts" [value]="account.id">
+                      {{ account.accountNumber }} ({{ account.type === 'SAVINGS' ? 'Savings' : 'Current' }}) - {{ getFormattedAmount(account.balance) }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="transferForm.get('sourceAccountId').hasError('required')">
+                    Source account is required
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>To Account Number</mat-label>
+                  <input matInput formControlName="destinationAccountNumber" placeholder="Enter destination account number">
+                  <mat-error *ngIf="transferForm.get('destinationAccountNumber').hasError('required')">
+                    Destination account number is required
+                  </mat-error>
+                  <mat-error *ngIf="transferForm.get('destinationAccountNumber').hasError('pattern')">
+                    Enter a valid account number (10-16 digits)
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-column">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Amount</mat-label>
+                  <input matInput type="number" formControlName="amount" placeholder="Enter transfer amount">
+                  <span matPrefix>₹&nbsp;</span>
+                  <mat-error *ngIf="transferForm.get('amount').hasError('required')">
+                    Amount is required
+                  </mat-error>
+                  <mat-error *ngIf="transferForm.get('amount').hasError('min')">
+                    Amount must be greater than 0
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput formControlName="description" placeholder="Enter transfer description" rows="3"></textarea>
+                  <mat-error *ngIf="transferForm.get('description').hasError('required')">
+                    Description is required
+                  </mat-error>
+                  <mat-error *ngIf="transferForm.get('description').hasError('maxlength')">
+                    Description must be less than 100 characters
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="transfer-image-container">
+              <div class="transfer-image">
+                <img src="https://pixabay.com/get/g3d9f3ce55b7b4164790e9b2e646b0b83008a2fa97591852ea238986e604c4e430c4c9feadf7223ff786c2d3575db8ab1b7b05378019d11af671b5e559246cb6d_1280.jpg" 
+                     alt="Money Transfer" class="transfer-banner">
+                <div class="transfer-instructions">
+                  <h3>Instructions</h3>
+                  <ul>
+                    <li>Make sure the destination account number is correct</li>
+                    <li>Check if you have sufficient balance in your account</li>
+                    <li>Transfers between iNB accounts are processed instantly</li>
+                    <li>You will receive a confirmation once the transfer is completed</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="transferForm.invalid || submitting">
+                <mat-spinner diameter="20" *ngIf="submitting" class="spinner"></mat-spinner>
+                <span *ngIf="!submitting">Transfer Money</span>
+              </button>
+              <button mat-button type="button" (click)="resetForm()">Reset</button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="history-section">
+      <mat-card class="transfer-history-card">
+        <mat-card-header>
+          <mat-card-title>Recent Transfers</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="transferHistoryLoading" class="loading-container">
+            <mat-spinner diameter="30"></mat-spinner>
+            <p>Loading transfer history...</p>
+          </div>
+
+          <div *ngIf="!transferHistoryLoading && recentTransfers.length === 0" class="no-transfers">
+            <mat-icon>swap_horiz</mat-icon>
+            <p>No recent transfers found</p>
+          </div>
+
+          <div *ngIf="!transferHistoryLoading && recentTransfers.length > 0" class="transfer-list">
+            <div *ngFor="let transfer of recentTransfers" class="transfer-item">
+              <div class="transfer-details">
+                <div class="transfer-header">
+                  <div class="transfer-accounts">
+                    <span class="account-from">{{ transfer.sourceAccountNumber }}</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                    <span class="account-to">{{ transfer.destinationAccountNumber }}</span>
+                  </div>
+                  <span class="transfer-amount">{{ getFormattedAmount(transfer.amount) }}</span>
+                </div>
+                <div class="transfer-info">
+                  <div class="info-row">
+                    <span class="info-label">Description:</span>
+                    <span class="info-value">{{ transfer.description }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Date:</span>
+                    <span class="info-value">{{ transfer.timestamp | date:'medium' }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Reference:</span>
+                    <span class="info-value">{{ transfer.reference }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="transfer-actions">
+                <button mat-button color="primary" (click)="repeatTransfer(transfer)">
+                  <mat-icon>repeat</mat-icon>
+                  Repeat
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <mat-card class="info-card">
+      <mat-card-content>
+        <h2>About Money Transfers</h2>
+        <p>
+          Transfer money between iNB accounts instantly. Your transfers are processed securely and efficiently, ensuring that your funds reach the intended recipient in real-time.
+        </p>
+        <div class="transfer-benefits">
+          <div class="benefit-item">
+            <mat-icon>flash_on</mat-icon>
+            <h3>Instant Transfer</h3>
+            <p>Money is transferred immediately between iNB accounts</p>
+          </div>
+          <div class="benefit-item">
+            <mat-icon>security</mat-icon>
+            <h3>Secure</h3>
+            <p>Advanced security measures to protect your transactions</p>
+          </div>
+          <div class="benefit-item">
+            <mat-icon>history</mat-icon>
+            <h3>Track Transfers</h3>
+            <p>View and monitor all your transfer history in one place</p>
+          </div>
+          <div class="benefit-item">
+            <mat-icon>repeat</mat-icon>
+            <h3>Repeat Transfers</h3>
+            <p>Easily repeat previous transactions with a single click</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

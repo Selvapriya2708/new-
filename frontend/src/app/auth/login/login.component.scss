@@ -1,0 +1,33 @@
+/* Login component specific styles */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.auth-action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}

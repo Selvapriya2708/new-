@@ -1,0 +1,160 @@
+<div class="cheque-status-container">
+  <div class="page-header">
+    <h1>Cheque Status</h1>
+    <p class="subtitle">Track the status of your deposited cheques</p>
+  </div>
+
+  <div class="content-section">
+    <div class="status-info card">
+      <h2>Cheque Processing Workflow</h2>
+      <div class="status-workflow">
+        <div class="status-step">
+          <div class="status-icon not-received">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="status-label">Not Received</div>
+          <div class="status-description">Cheque has been registered online but not yet received by the bank.</div>
+        </div>
+        <div class="status-step">
+          <div class="status-icon received">
+            <mat-icon>inventory_2</mat-icon>
+          </div>
+          <div class="status-label">Received</div>
+          <div class="status-description">Cheque has been received by the bank and is being processed.</div>
+        </div>
+        <div class="status-step">
+          <div class="status-icon sent-for-clearance">
+            <mat-icon>sync</mat-icon>
+          </div>
+          <div class="status-label">Sent for Clearance</div>
+          <div class="status-description">Cheque has been sent for clearance and is being verified.</div>
+        </div>
+        <div class="status-step">
+          <div class="status-icon cleared">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="status-label">Cleared</div>
+          <div class="status-description">Cheque has been cleared and amount credited to your account.</div>
+        </div>
+        <div class="status-step">
+          <div class="status-icon bounced">
+            <mat-icon>cancel</mat-icon>
+          </div>
+          <div class="status-label">Bounced</div>
+          <div class="status-description">Cheque has been bounced. A fee may be charged to your account.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-card card">
+      <div class="filters-header">
+        <h2>My Deposited Cheques</h2>
+        <button mat-raised-button color="primary" [routerLink]="['/cheques/deposit']">
+          <mat-icon>add</mat-icon> Deposit New Cheque
+        </button>
+      </div>
+
+      <div class="filters-content">
+        <mat-form-field appearance="outline">
+          <mat-label>Filter by Status</mat-label>
+          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilters()">
+            <mat-option *ngFor="let status of statusFilters" [value]="status.value">
+              {{status.label}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Search</mat-label>
+          <input matInput [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Search by cheque number, account, etc.">
+          <button *ngIf="searchTerm" mat-icon-button matSuffix (click)="searchTerm=''; applyFilters()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <button mat-button color="primary" (click)="resetFilters()" *ngIf="selectedStatus || searchTerm">
+          <mat-icon>clear</mat-icon> Reset Filters
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading your cheques...</p>
+    </div>
+
+    <div *ngIf="error" class="error-container">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <p>There was an error loading your cheques. Please try again.</p>
+      <button mat-raised-button color="primary" (click)="loadCheques()">Retry</button>
+    </div>
+
+    <div *ngIf="!loading && !error" class="cheque-list card">
+      <div *ngIf="filteredCheques.length === 0" class="no-cheques">
+        <mat-icon>info</mat-icon>
+        <p *ngIf="cheques.length === 0">You haven't deposited any cheques yet.</p>
+        <p *ngIf="cheques.length > 0">No cheques match your filter criteria.</p>
+        <button mat-raised-button color="primary" [routerLink]="['/cheques/deposit']" *ngIf="cheques.length === 0">
+          <mat-icon>add</mat-icon> Deposit New Cheque
+        </button>
+      </div>
+
+      <div class="table-container" *ngIf="filteredCheques.length > 0">
+        <table mat-table [dataSource]="filteredCheques" class="cheque-table">
+          <!-- Cheque Number Column -->
+          <ng-container matColumnDef="chequeNumber">
+            <th mat-header-cell *matHeaderCellDef>Cheque No.</th>
+            <td mat-cell *matCellDef="let cheque">{{cheque.chequeNumber}}</td>
+          </ng-container>
+
+          <!-- Account Number Column -->
+          <ng-container matColumnDef="accountNumber">
+            <th mat-header-cell *matHeaderCellDef>Account</th>
+            <td mat-cell *matCellDef="let cheque">{{cheque.accountNumber}}</td>
+          </ng-container>
+
+          <!-- Amount Column -->
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let cheque">{{formatCurrency(cheque.amount)}}</td>
+          </ng-container>
+
+          <!-- Deposit Date Column -->
+          <ng-container matColumnDef="depositDate">
+            <th mat-header-cell *matHeaderCellDef>Deposit Date</th>
+            <td mat-cell *matCellDef="let cheque">{{cheque.depositDate | date:'mediumDate'}}</td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let cheque">
+              <div class="cheque-status-badge" [ngClass]="getStatusClass(cheque.status)">
+                {{cheque.status.replace('_', ' ')}}
+              </div>
+              <div class="bounce-reason" *ngIf="cheque.status === 'BOUNCED'">
+                Reason: {{cheque.bounceReason || 'N/A'}}
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let cheque">
+              <button mat-icon-button matTooltip="View Details" (click)="viewChequeDetails(cheque)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Print Bank Slip" (click)="printBankSlip(cheque.id)" *ngIf="cheque.status === 'NOT_RECEIVED'">
+                <mat-icon>print</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="cheque-row"></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

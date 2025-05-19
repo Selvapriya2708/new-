@@ -1,0 +1,164 @@
+<div class="bill-payment-container">
+  <div class="page-header">
+    <h1>Bill Payment</h1>
+    <p class="subtitle">Pay your utility bills easily with iNB Internet Banking</p>
+  </div>
+
+  <div class="content-section">
+    <div class="form-card card">
+      <h2>Pay a Bill</h2>
+      <form [formGroup]="billPaymentForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Select Account</mat-label>
+          <mat-select formControlName="accountId" [disabled]="accountsLoading">
+            <mat-option *ngIf="accountsLoading" [value]="''">Loading accounts...</mat-option>
+            <mat-option *ngFor="let account of accounts" [value]="account.id">
+              {{getAccountDisplay(account)}}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="accounts.length === 0 && !accountsLoading">No eligible accounts found.</mat-hint>
+          <mat-error *ngIf="billPaymentForm.get('accountId')?.hasError('required')">
+            Please select an account
+          </mat-error>
+        </mat-form-field>
+
+        <div class="biller-selection">
+          <div class="category-filter">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Filter by Category</mat-label>
+              <mat-select [(ngModel)]="selectedCategory" [ngModelOptions]="{standalone: true}" (selectionChange)="filterBillers()">
+                <mat-option [value]="null">All Categories</mat-option>
+                <mat-option *ngFor="let category of billerCategories" [value]="category">
+                  {{getBillerCategoryName(category)}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Select Biller</mat-label>
+            <mat-select formControlName="billerId" [disabled]="billersLoading">
+              <mat-option *ngIf="billersLoading" [value]="''">Loading billers...</mat-option>
+              <mat-option *ngFor="let biller of filteredBillers" [value]="biller.id">
+                {{biller.name}} ({{getBillerCategoryName(biller.category)}})
+              </mat-option>
+            </mat-select>
+            <mat-hint *ngIf="filteredBillers.length === 0 && !billersLoading">
+              No billers found for the selected category.
+            </mat-hint>
+            <mat-error *ngIf="billPaymentForm.get('billerId')?.hasError('required')">
+              Please select a biller
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Amount</mat-label>
+            <input matInput type="number" formControlName="amount" placeholder="Enter amount">
+            <span matPrefix>₹&nbsp;</span>
+            <mat-error *ngIf="billPaymentForm.get('amount')?.hasError('required')">
+              Amount is required
+            </mat-error>
+            <mat-error *ngIf="billPaymentForm.get('amount')?.hasError('min')">
+              Amount must be greater than 0
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Reference / Consumer Number</mat-label>
+            <input matInput formControlName="reference" placeholder="Enter reference number">
+            <mat-error *ngIf="billPaymentForm.get('reference')?.hasError('required')">
+              Reference number is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description (Optional)</mat-label>
+          <textarea matInput formControlName="description" rows="2" placeholder="Add any additional notes"></textarea>
+        </mat-form-field>
+
+        <div class="schedule-payment">
+          <mat-checkbox [(ngModel)]="isScheduled" [ngModelOptions]="{standalone: true}" (change)="toggleScheduling()">
+            Schedule this payment for a later date
+          </mat-checkbox>
+          
+          <mat-form-field appearance="outline" *ngIf="isScheduled" class="date-picker">
+            <mat-label>Payment Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="scheduledDate" [min]="minDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="isScheduled && billPaymentForm.get('scheduledDate')?.hasError('required')">
+              Please select a date
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="resetForm()">Reset</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="billPaymentForm.invalid || submitting">
+            <span *ngIf="!isScheduled">Pay Now</span>
+            <span *ngIf="isScheduled">Schedule Payment</span>
+            <mat-spinner *ngIf="submitting" diameter="20" class="spinner"></mat-spinner>
+          </button>
+        </div>
+      </form>
+
+      <div class="success-message" *ngIf="success">
+        <mat-icon color="primary">check_circle</mat-icon>
+        <div class="success-content">
+          <h3>Bill Payment Successful</h3>
+          <p *ngIf="!isScheduled">Your bill payment has been processed successfully.</p>
+          <p *ngIf="isScheduled">Your bill payment has been scheduled successfully.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card card">
+      <h2>Payment Information</h2>
+      <div class="info-points">
+        <div class="info-point">
+          <div class="info-icon">
+            <mat-icon>info</mat-icon>
+          </div>
+          <div class="info-text">
+            <h3>Instant Processing</h3>
+            <p>Bill payments are processed instantly when you choose "Pay Now".</p>
+          </div>
+        </div>
+        <div class="info-point">
+          <div class="info-icon">
+            <mat-icon>event</mat-icon>
+          </div>
+          <div class="info-text">
+            <h3>Schedule Payments</h3>
+            <p>You can schedule payments for a future date up to 30 days in advance.</p>
+          </div>
+        </div>
+        <div class="info-point">
+          <div class="info-icon">
+            <mat-icon>history</mat-icon>
+          </div>
+          <div class="info-text">
+            <h3>Payment History</h3>
+            <p>View your payment history in the account statement section.</p>
+          </div>
+        </div>
+        <div class="info-point">
+          <div class="info-icon">
+            <mat-icon>security</mat-icon>
+          </div>
+          <div class="info-text">
+            <h3>Secure Transactions</h3>
+            <p>All bill payments are secured with bank-grade encryption.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="payment-image">
+        <img src="https://pixabay.com/get/g413da6f8a7fa8abf1e880da3eb8079fdc71eefe6eb08dfc28c8ff63c677e9b840ec58a626e13041d438286f9a861b3d2951cd2b1c03396fcf8a189db97a24f87_1280.jpg" alt="Financial Transaction Image">
+      </div>
+    </div>
+  </div>
+</div>

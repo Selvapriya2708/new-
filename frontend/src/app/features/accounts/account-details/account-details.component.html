@@ -1,0 +1,246 @@
+<div class="account-details-container">
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner [diameter]="40"></mat-spinner>
+    <p>Loading account details...</p>
+  </div>
+  
+  <div *ngIf="!isLoading && account">
+    <div class="page-header">
+      <h1>Account Details</h1>
+      <button mat-raised-button color="primary" (click)="navigateToTransactions()">
+        <mat-icon>receipt_long</mat-icon>
+        View All Transactions
+      </button>
+    </div>
+    
+    <div class="account-cards">
+      <!-- Main Account Info Card -->
+      <mat-card class="account-card main-info">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>{{ account.accountType === 'SAVINGS' ? 'savings' : (account.accountType === 'CURRENT' ? 'account_balance' : 'schedule') }}</mat-icon>
+          <mat-card-title>{{ getAccountTypeLabel(account.accountType) }}</mat-card-title>
+          <mat-card-subtitle>{{ account.accountNumber }}</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="account-balance">
+            <p class="balance-label">Available Balance</p>
+            <p class="balance-value">{{ formatCurrency(account.balance) }}</p>
+          </div>
+          
+          <div class="account-info">
+            <div class="info-item">
+              <span class="info-label">Account Status</span>
+              <span class="info-value status-badge" [ngClass]="'status-' + account.status.toLowerCase()">
+                {{ account.status }}
+              </span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Account Created</span>
+              <span class="info-value">{{ account.createdDate | date:'mediumDate' }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Last Updated</span>
+              <span class="info-value">{{ account.lastUpdated | date:'medium' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <!-- Savings Account Specific Card -->
+      <mat-card *ngIf="savingsAccount" class="account-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>savings</mat-icon>
+          <mat-card-title>Savings Account Details</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="account-info">
+            <div class="info-item">
+              <span class="info-label">Interest Rate</span>
+              <span class="info-value highlight">{{ formatInterestRate(savingsAccount.interestRate) }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Minimum Balance Required</span>
+              <span class="info-value">{{ formatCurrency(savingsAccount.minimumBalance) }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Maximum Daily Withdrawal</span>
+              <span class="info-value">{{ formatCurrency(savingsAccount.maxDailyWithdrawalAmount) }}</span>
+            </div>
+          </div>
+          
+          <div class="info-note">
+            <mat-icon>info</mat-icon>
+            <p>Interest is calculated monthly based on your average monthly balance.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <!-- Current Account Specific Card -->
+      <mat-card *ngIf="currentAccount" class="account-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>account_balance</mat-icon>
+          <mat-card-title>Current Account Details</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="account-info">
+            <div class="info-item">
+              <span class="info-label">Overdraft Facility</span>
+              <span class="info-value">{{ currentAccount.hasOverdraft ? 'Available' : 'Not Available' }}</span>
+            </div>
+            
+            <div class="info-item" *ngIf="currentAccount.hasOverdraft">
+              <span class="info-label">Overdraft Limit</span>
+              <span class="info-value">{{ formatCurrency(currentAccount.overdraftLimit) }}</span>
+            </div>
+            
+            <div class="info-item" *ngIf="currentAccount.hasOverdraft">
+              <span class="info-label">Overdraft Interest Rate</span>
+              <span class="info-value highlight">{{ formatInterestRate(currentAccount.overdraftInterestRate) }}</span>
+            </div>
+          </div>
+          
+          <div class="info-note" *ngIf="currentAccount.hasOverdraft">
+            <mat-icon>info</mat-icon>
+            <p>Overdraft charges are calculated daily on the overdrawn amount.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <!-- Fixed Deposit Account Specific Card -->
+      <mat-card *ngIf="fixedDepositAccount" class="account-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>schedule</mat-icon>
+          <mat-card-title>Fixed Deposit Details</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="account-info">
+            <div class="info-item">
+              <span class="info-label">Principal Amount</span>
+              <span class="info-value">{{ formatCurrency(fixedDepositAccount.principalAmount) }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Interest Rate</span>
+              <span class="info-value highlight">{{ formatInterestRate(fixedDepositAccount.interestRate) }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Term Period</span>
+              <span class="info-value">{{ fixedDepositAccount.term }} months</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Maturity Date</span>
+              <span class="info-value">{{ fixedDepositAccount.maturityDate | date:'mediumDate' }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Maturity Amount</span>
+              <span class="info-value highlight">{{ formatCurrency(fixedDepositAccount.maturityAmount) }}</span>
+            </div>
+          </div>
+          
+          <div class="info-note">
+            <mat-icon>info</mat-icon>
+            <p>Withdrawal before maturity date is not allowed for fixed deposits.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    
+    <!-- Mini Statement Card -->
+    <mat-card class="mini-statement-card">
+      <mat-card-header>
+        <mat-card-title>Recent Transactions</mat-card-title>
+        <mat-card-subtitle>Last 5 transactions for this account</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div *ngIf="miniStatement.length === 0" class="no-transactions">
+          <mat-icon>receipt</mat-icon>
+          <p>No recent transactions found</p>
+        </div>
+        
+        <div *ngIf="miniStatement.length > 0" class="transactions-table">
+          <table mat-table [dataSource]="miniStatement" class="mat-elevation-z0">
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef> Date </th>
+              <td mat-cell *matCellDef="let transaction"> {{ transaction.transactionDate | date:'medium' }} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef> Type </th>
+              <td mat-cell *matCellDef="let transaction"> {{ transaction.transactionType }} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef> Description </th>
+              <td mat-cell *matCellDef="let transaction"> {{ transaction.description }} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="reference">
+              <th mat-header-cell *matHeaderCellDef> Reference </th>
+              <td mat-cell *matCellDef="let transaction"> {{ transaction.reference }} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef> Amount </th>
+              <td mat-cell *matCellDef="let transaction" [style.color]="getTransactionColor(transaction.amount)">
+                {{ formatCurrency(transaction.amount) }}
+              </td>
+            </ng-container>
+            
+            <tr mat-header-row *matHeaderRowDef="['date', 'type', 'description', 'reference', 'amount']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['date', 'type', 'description', 'reference', 'amount'];"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+      
+      <mat-card-actions align="end">
+        <button mat-button color="primary" (click)="navigateToTransactions()">
+          <mat-icon>receipt_long</mat-icon>
+          View All Transactions
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    
+    <!-- Detailed Statement Card -->
+    <mat-card class="detailed-statement-card">
+      <mat-card-header>
+        <mat-card-title>Generate Detailed Statement</mat-card-title>
+        <mat-card-subtitle>Select date range to view account statement</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <form class="statement-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" name="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" name="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+          
+          <button mat-raised-button color="accent" (click)="generateDetailedStatement()">
+            <mat-icon>description</mat-icon>
+            Generate Statement
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

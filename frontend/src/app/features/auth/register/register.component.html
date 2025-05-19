@@ -1,0 +1,133 @@
+<div class="register-container">
+  <div class="register-card-container">
+    <mat-card class="register-card">
+      <mat-card-header>
+        <mat-card-title>Register for iNB Internet Banking</mat-card-title>
+        <mat-card-subtitle>Create your account to get started</mat-card-subtitle>
+      </mat-card-header>
+      
+      <img mat-card-image src="https://pixabay.com/get/g135e01e36ba4adbdefbf5e1d76c7e32e2a1e1ced22d3f374ff9b5f616bef788109fc278916f6d1d47c55b0cfefcfa47ce61460119269799218c6ed0590c3dd3e_1280.jpg" alt="Secure Registration" class="register-image">
+      
+      <mat-card-content>
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>First Name</mat-label>
+              <input matInput formControlName="firstName" placeholder="Enter your first name">
+              <mat-error *ngIf="registerForm.get('firstName')?.hasError('required')">
+                First name is required
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="lastName" placeholder="Enter your last name">
+              <mat-error *ngIf="registerForm.get('lastName')?.hasError('required')">
+                Last name is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" placeholder="Choose a username">
+            <mat-error *ngIf="registerForm.get('username')?.hasError('required')">
+              Username is required
+            </mat-error>
+            <mat-error *ngIf="registerForm.get('username')?.hasError('minlength')">
+              Username must be at least 4 characters
+            </mat-error>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" placeholder="Enter your email" type="email">
+            <mat-error *ngIf="registerForm.get('email')?.hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="registerForm.get('email')?.hasError('email')">
+              Please enter a valid email address
+            </mat-error>
+          </mat-form-field>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Password</mat-label>
+              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Create a password">
+              <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-error *ngIf="registerForm.get('password')?.hasError('required')">
+                Password is required
+              </mat-error>
+              <mat-error *ngIf="registerForm.get('password')?.hasError('minlength')">
+                Password must be at least 6 characters
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Confirm Password</mat-label>
+              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="confirmPassword" placeholder="Confirm your password">
+              <mat-error *ngIf="registerForm.get('confirmPassword')?.hasError('required')">
+                Please confirm your password
+              </mat-error>
+              <mat-error *ngIf="registerForm.hasError('passwordMismatch')">
+                Passwords do not match
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="phoneNumber" placeholder="Enter your 10-digit phone number">
+            <mat-error *ngIf="registerForm.get('phoneNumber')?.hasError('required')">
+              Phone number is required
+            </mat-error>
+            <mat-error *ngIf="registerForm.get('phoneNumber')?.hasError('pattern')">
+              Please enter a valid 10-digit phone number
+            </mat-error>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Address</mat-label>
+            <textarea matInput formControlName="address" placeholder="Enter your full address" rows="3"></textarea>
+            <mat-error *ngIf="registerForm.get('address')?.hasError('required')">
+              Address is required
+            </mat-error>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Account Type</mat-label>
+            <mat-select formControlName="accountType">
+              <mat-option *ngFor="let type of accountTypes" [value]="type.value">
+                {{ type.viewValue }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="registerForm.get('accountType')?.hasError('required')">
+              Account type is required
+            </mat-error>
+          </mat-form-field>
+          
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid || isLoading" class="register-button">
+              <mat-icon>person_add</mat-icon>
+              <span *ngIf="!isLoading">Register</span>
+              <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+      
+      <mat-card-actions>
+        <button mat-button color="accent" (click)="navigateToLogin()">Already have an account? Login</button>
+      </mat-card-actions>
+      
+      <mat-card-footer class="register-card-footer">
+        <div class="security-info">
+          <mat-icon>security</mat-icon>
+          <span>Your information is secure with us</span>
+        </div>
+      </mat-card-footer>
+    </mat-card>
+  </div>
+</div>

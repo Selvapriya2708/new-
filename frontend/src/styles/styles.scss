@@ -1,0 +1,155 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body { height: 100%; }
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  background-color: #f5f5f5;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.mat-card {
+  margin: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.mat-card-header {
+  background-color: #3f51b5;
+  color: white;
+  padding: 16px;
+  border-radius: 4px 4px 0 0;
+  margin: -16px -16px 16px -16px !important;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.auth-card {
+  max-width: 400px;
+  width: 100%;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.auth-title {
+  text-align: center;
+  margin-bottom: 24px !important;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.page-container {
+  padding: 24px;
+}
+
+.section-title {
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #3f51b5;
+  font-weight: 500;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -8px;
+}
+
+.info-card {
+  flex: 1 1 300px;
+  margin: 8px;
+  min-width: 300px;
+}
+
+.info-card-title {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.balance-amount {
+  font-size: 32px;
+  font-weight: 500;
+  color: #3f51b5;
+}
+
+.account-number {
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+.transaction-table {
+  width: 100%;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  
+  &.success {
+    background-color: #c8e6c9;
+    color: #2e7d32;
+  }
+  
+  &.warning {
+    background-color: #fff9c4;
+    color: #f57f17;
+  }
+  
+  &.error {
+    background-color: #ffcdd2;
+    color: #c62828;
+  }
+  
+  &.info {
+    background-color: #bbdefb;
+    color: #1565c0;
+  }
+}
+
+.action-button-container {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.footer {
+  background-color: #303030;
+  color: white;
+  padding: 24px;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-container {
+    flex-direction: column;
+  }
+  
+  .info-card {
+    flex: 1 1 100%;
+  }
+}

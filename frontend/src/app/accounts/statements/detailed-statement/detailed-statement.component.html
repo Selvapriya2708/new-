@@ -1,0 +1,154 @@
+<div class="detailed-statement-container">
+  <div class="header-navigation">
+    <button mat-button (click)="navigateToAccountDetail()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Account Details
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading account details...</p>
+  </div>
+
+  <div *ngIf="!loading && account" class="statement-content">
+    <div class="statement-header">
+      <div class="bank-info">
+        <h1>iNB Internet Banking</h1>
+        <p>Detailed Statement</p>
+      </div>
+      
+      <div class="account-info">
+        <div class="info-row">
+          <span class="info-label">Account Type:</span>
+          <span class="info-value">{{ getAccountTypeLabel(account.type) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Account Number:</span>
+          <span class="info-value">{{ account.accountNumber }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Statement Date:</span>
+          <span class="info-value">{{ filterForm.value.startDate | date:'mediumDate' }} to {{ filterForm.value.endDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Current Balance:</span>
+          <span class="info-value balance">{{ getFormattedBalance(account.balance) }}</span>
+        </div>
+      </div>
+      
+      <div class="statement-actions">
+        <button mat-raised-button color="primary" (click)="printStatement()">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+      </div>
+    </div>
+
+    <mat-card class="filter-card">
+      <form [formGroup]="filterForm" (ngSubmit)="applyFilter()">
+        <div class="filter-form">
+          <div class="date-filters">
+            <mat-form-field appearance="outline">
+              <mat-label>Start Date</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>End Date</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+          
+          <div class="type-filter">
+            <mat-form-field appearance="outline">
+              <mat-label>Transaction Type</mat-label>
+              <mat-select formControlName="transactionType">
+                <mat-option *ngFor="let type of transactionTypes" [value]="type.value">
+                  {{ type.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          
+          <div class="filter-actions">
+            <button mat-raised-button color="primary" type="submit">
+              <mat-icon>search</mat-icon>
+              Apply Filter
+            </button>
+            <button mat-button type="button" (click)="resetFilter()">
+              <mat-icon>refresh</mat-icon>
+              Reset
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-card>
+
+    <div *ngIf="transactionsLoading" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading transactions...</p>
+    </div>
+
+    <div *ngIf="!transactionsLoading && transactions.length === 0" class="no-transactions">
+      <mat-icon>receipt_long</mat-icon>
+      <p>No transactions found for the selected period</p>
+    </div>
+
+    <div *ngIf="!transactionsLoading && transactions.length > 0" class="statement-table-container">
+      <h2>Transaction Details</h2>
+      
+      <table mat-table [dataSource]="transactions" class="statement-table">
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <td mat-cell *matCellDef="let transaction"> {{ transaction.timestamp | date:'medium' }} </td>
+        </ng-container>
+
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef> Description </th>
+          <td mat-cell *matCellDef="let transaction"> {{ transaction.description }} </td>
+        </ng-container>
+
+        <!-- Reference Column -->
+        <ng-container matColumnDef="reference">
+          <th mat-header-cell *matHeaderCellDef> Reference </th>
+          <td mat-cell *matCellDef="let transaction"> {{ transaction.reference }} </td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef> Type </th>
+          <td mat-cell *matCellDef="let transaction"> {{ getTransactionTypeLabel(transaction.type) }} </td>
+        </ng-container>
+
+        <!-- Amount Column -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef> Amount </th>
+          <td mat-cell *matCellDef="let transaction" [ngClass]="{'credit': isCredit(transaction.type), 'debit': !isCredit(transaction.type)}">
+            {{ isCredit(transaction.type) ? '+' : '-' }} {{ getFormattedAmount(transaction.amount) }}
+          </td>
+        </ng-container>
+
+        <!-- Balance Column -->
+        <ng-container matColumnDef="balance">
+          <th mat-header-cell *matHeaderCellDef> Balance </th>
+          <td mat-cell *matCellDef="let transaction"> {{ getFormattedBalance(transaction.balanceAfter) }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+    <div class="statement-footer">
+      <p>This is a computer-generated statement and does not require a signature.</p>
+      <p>For any queries, please contact our customer support at support@inb.com or call 1800-123-4567.</p>
+    </div>
+  </div>
+</div>

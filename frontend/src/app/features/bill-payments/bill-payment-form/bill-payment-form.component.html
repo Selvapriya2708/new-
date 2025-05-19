@@ -1,0 +1,240 @@
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="page-title">Bill Payment</h2>
+      <p class="text-muted">Pay your utility bills and other services online</p>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="success" class="alert alert-success" role="alert">
+    <div class="d-flex justify-content-between align-items-center">
+      <span>{{ success }}</span>
+      <button class="btn btn-sm btn-outline-success" (click)="viewScheduledPayments()">
+        <i data-feather="list" class="btn-icon"></i> View Payments
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading your accounts...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Pay Bills</h4>
+          </div>
+          <div class="card-body">
+            <!-- No Accounts Warning -->
+            <div *ngIf="accounts.length === 0" class="alert alert-warning" role="alert">
+              <i data-feather="alert-circle" class="alert-icon"></i>
+              <span>You don't have any active accounts eligible for bill payments. Please contact the bank for assistance.</span>
+            </div>
+            
+            <form [formGroup]="billPaymentForm" (ngSubmit)="onSubmit()" *ngIf="accounts.length > 0">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="accountId" class="form-label">Select Account</label>
+                  <select 
+                    id="accountId" 
+                    formControlName="accountId" 
+                    class="form-select"
+                    [ngClass]="{'is-invalid': billPaymentForm.get('accountId')?.invalid && billPaymentForm.get('accountId')?.touched}"
+                  >
+                    <option value="">Select an account</option>
+                    <option *ngFor="let account of accounts" [value]="account.id">
+                      {{ getAccountTypeLabel(account.accountType) }} - {{ account.accountNumber }} (Balance: ${{ account.balance.toFixed(2) }})
+                    </option>
+                  </select>
+                  <div *ngIf="billPaymentForm.get('accountId')?.invalid && billPaymentForm.get('accountId')?.touched" class="invalid-feedback">
+                    Please select an account for the bill payment.
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label for="billType" class="form-label">Bill Type</label>
+                  <select 
+                    id="billType" 
+                    formControlName="billType" 
+                    class="form-select"
+                    [ngClass]="{'is-invalid': billPaymentForm.get('billType')?.invalid && billPaymentForm.get('billType')?.touched}"
+                  >
+                    <option value="">Select bill type</option>
+                    <option *ngFor="let provider of utilityProviders" [value]="provider.id">
+                      {{ provider.name }}
+                    </option>
+                  </select>
+                  <div *ngIf="billPaymentForm.get('billType')?.invalid && billPaymentForm.get('billType')?.touched" class="invalid-feedback">
+                    Please select a bill type.
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label for="amount" class="form-label">Amount</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input 
+                      type="number" 
+                      id="amount" 
+                      formControlName="amount" 
+                      class="form-control"
+                      [ngClass]="{'is-invalid': billPaymentForm.get('amount')?.invalid && billPaymentForm.get('amount')?.touched}"
+                      step="0.01" 
+                      min="0.01"
+                      placeholder="0.00"
+                    >
+                    <div *ngIf="billPaymentForm.get('amount')?.invalid && billPaymentForm.get('amount')?.touched" class="invalid-feedback">
+                      <div *ngIf="billPaymentForm.get('amount')?.errors?.['required']">Amount is required.</div>
+                      <div *ngIf="billPaymentForm.get('amount')?.errors?.['min']">Amount must be greater than 0.</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label for="referenceNumber" class="form-label">Reference/Bill Number</label>
+                  <input 
+                    type="text" 
+                    id="referenceNumber" 
+                    formControlName="referenceNumber" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': billPaymentForm.get('referenceNumber')?.invalid && billPaymentForm.get('referenceNumber')?.touched}"
+                    placeholder="Enter bill/reference number"
+                  >
+                  <div *ngIf="billPaymentForm.get('referenceNumber')?.invalid && billPaymentForm.get('referenceNumber')?.touched" class="invalid-feedback">
+                    Reference/Bill number is required.
+                  </div>
+                </div>
+                
+                <div class="col-md-12">
+                  <label for="payeeName" class="form-label">Payee Name</label>
+                  <input 
+                    type="text" 
+                    id="payeeName" 
+                    formControlName="payeeName" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': billPaymentForm.get('payeeName')?.invalid && billPaymentForm.get('payeeName')?.touched}"
+                    placeholder="Enter name of the service provider"
+                  >
+                  <div *ngIf="billPaymentForm.get('payeeName')?.invalid && billPaymentForm.get('payeeName')?.touched" class="invalid-feedback">
+                    Payee name is required.
+                  </div>
+                </div>
+                
+                <div class="col-md-12">
+                  <label for="description" class="form-label">Description (Optional)</label>
+                  <textarea 
+                    id="description" 
+                    formControlName="description" 
+                    class="form-control" 
+                    rows="2"
+                    placeholder="Add a note for this payment"
+                  ></textarea>
+                </div>
+                
+                <div class="col-md-12">
+                  <div class="form-check form-switch">
+                    <input 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      id="schedulePayment" 
+                      formControlName="schedulePayment"
+                    >
+                    <label class="form-check-label" for="schedulePayment">Schedule this payment for later</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-6" *ngIf="scheduleMode">
+                  <label for="scheduleDate" class="form-label">Schedule Date</label>
+                  <input 
+                    type="date" 
+                    id="scheduleDate" 
+                    formControlName="scheduleDate" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': billPaymentForm.get('scheduleDate')?.invalid && billPaymentForm.get('scheduleDate')?.touched}"
+                    [min]="getMinDate()"
+                  >
+                  <div *ngIf="billPaymentForm.get('scheduleDate')?.invalid && billPaymentForm.get('scheduleDate')?.touched" class="invalid-feedback">
+                    Schedule date is required and must be a future date.
+                  </div>
+                </div>
+                
+                <div class="col-12 mt-4">
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
+                      <i data-feather="refresh-cw" class="btn-icon"></i> Reset
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="submitting || billPaymentForm.invalid">
+                      <i data-feather="dollar-sign" class="btn-icon"></i>
+                      <span *ngIf="!submitting && !scheduleMode">Pay Now</span>
+                      <span *ngIf="!submitting && scheduleMode">Schedule Payment</span>
+                      <span *ngIf="submitting">Processing...</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h4 class="mb-0">Bill Payment Information</h4>
+          </div>
+          <div class="card-body">
+            <div class="bill-info-section">
+              <h5 class="info-title">
+                <i data-feather="info" class="info-icon"></i> Important Information
+              </h5>
+              <ul class="info-list">
+                <li>Payments made before 4:00 PM will be processed on the same day.</li>
+                <li>Payments made after 4:00 PM will be processed on the next business day.</li>
+                <li>You can schedule payments up to 30 days in advance.</li>
+                <li>Scheduled payments can be canceled before the processing date.</li>
+              </ul>
+            </div>
+            
+            <div class="bill-info-section">
+              <h5 class="info-title">
+                <i data-feather="shield" class="info-icon"></i> Secure Transactions
+              </h5>
+              <p>All your bill payment transactions are secured with industry-standard encryption protocols.</p>
+            </div>
+            
+            <div class="bill-image">
+              <img src="https://pixabay.com/get/gcfaa228954d88e102a838d1a0a9e3406907ae945dcfd6c67a78c83ecb5ff103b87afb43e56ac2cf2893c91cea98c3bc40b5314d626f2466e0650d7de76be2b74_1280.jpg" 
+                   alt="Financial Transaction" class="img-fluid rounded">
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Payment History</h4>
+          </div>
+          <div class="card-body">
+            <p>View your previous bill payments and scheduled transactions.</p>
+            <div class="d-grid">
+              <button class="btn btn-outline-primary" (click)="viewScheduledPayments()">
+                <i data-feather="clock" class="btn-icon"></i> View Scheduled Payments
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

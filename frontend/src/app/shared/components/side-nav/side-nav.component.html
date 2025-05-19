@@ -1,0 +1,19 @@
+<nav class="side-navigation">
+  <div class="nav-content">
+    <ul class="nav-list">
+      <li *ngFor="let item of navItems" class="nav-item" [ngClass]="{'active': item.active}">
+        <a [routerLink]="item.route" class="nav-link">
+          <i data-feather="{{ item.icon }}" class="nav-icon"></i>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="nav-footer">
+      <div class="secure-banking">
+        <i data-feather="lock" class="secure-icon"></i>
+        <span>Secure Banking</span>
+      </div>
+    </div>
+  </div>
+</nav>

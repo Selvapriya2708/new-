@@ -1,0 +1,94 @@
+.page-title {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+
+.alert-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}
+
+// Form Styling
+.form-label {
+  font-weight: 500;
+}
+
+.invalid-feedback {
+  font-size: 0.825rem;
+}
+
+.form-check-input {
+  cursor: pointer;
+  
+  &:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+}
+
+.form-check-label {
+  cursor: pointer;
+  user-select: none;
+}
+
+// Bill Info Styling
+.bill-info-section {
+  margin-bottom: 20px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.info-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+.info-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+.info-list {
+  padding-left: 20px;
+  
+  li {
+    margin-bottom: 8px;
+    color: var(--text-color);
+  }
+}
+
+.bill-image {
+  margin-top: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  
+  img {
+    max-width: 100%;
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .col-lg-4 {
+    margin-top: 20px;
+  }
+}

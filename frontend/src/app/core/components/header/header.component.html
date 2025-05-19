@@ -1,0 +1,34 @@
+<mat-toolbar color="primary" class="header-toolbar">
+  <div class="logo-container">
+    <a routerLink="/home" class="logo-link">
+      <span class="logo-text">iNB</span>
+      <span class="logo-subtitle">Internet Banking</span>
+    </a>
+  </div>
+  
+  <span class="spacer"></span>
+  
+  <div *ngIf="currentUser" class="user-info">
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
+      <mat-icon>account_circle</mat-icon>
+      <span class="username">{{ currentUser.firstName }} {{ currentUser.lastName }}</span>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item routerLink="/profile">
+        <mat-icon>person</mat-icon>
+        <span>My Profile</span>
+      </button>
+      <button mat-menu-item routerLink="/change-password">
+        <mat-icon>lock</mat-icon>
+        <span>Change Password</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>

@@ -1,0 +1,156 @@
+<div class="transfer-container">
+  <div class="page-header">
+    <h1>Money Transfer</h1>
+  </div>
+  
+  <div class="content-container">
+    <div class="transfer-section">
+      <mat-card class="transfer-form-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>send</mat-icon>
+          <mat-card-title>Transfer Money</mat-card-title>
+          <mat-card-subtitle>Send money to another iNB account</mat-card-subtitle>
+        </mat-card-header>
+        
+        <img mat-card-image src="https://pixabay.com/get/g3d9f3ce55b7b4164790e9b2e646b0b83008a2fa97591852ea238986e604c4e430c4c9feadf7223ff786c2d3575db8ab1b7b05378019d11af671b5e559246cb6d_1280.jpg" alt="Money Transfer" class="transfer-image">
+        
+        <mat-card-content>
+          <div *ngIf="isLoading" class="loading-container">
+            <mat-spinner [diameter]="40"></mat-spinner>
+            <p>Loading your accounts...</p>
+          </div>
+          
+          <form *ngIf="!isLoading" [formGroup]="transferForm" (ngSubmit)="onSubmit()" class="transfer-form">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>From Account</mat-label>
+              <mat-select formControlName="fromAccountId">
+                <mat-option *ngFor="let account of accounts" [value]="account.id">
+                  {{ getAccountLabel(account) }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="transferForm.get('fromAccountId')?.hasError('required')">
+                Please select an account
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>To Account Number</mat-label>
+              <input matInput formControlName="toAccountNumber" placeholder="Enter recipient's account number">
+              <mat-icon matSuffix>account_balance</mat-icon>
+              <mat-error *ngIf="transferForm.get('toAccountNumber')?.hasError('required')">
+                Recipient account number is required
+              </mat-error>
+              <mat-error *ngIf="transferForm.get('toAccountNumber')?.hasError('pattern')">
+                Please enter a valid account number (10-16 digits)
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Amount</mat-label>
+              <input matInput type="number" formControlName="amount" placeholder="Enter amount to transfer">
+              <span matPrefix>₹&nbsp;</span>
+              <mat-error *ngIf="transferForm.get('amount')?.hasError('required')">
+                Amount is required
+              </mat-error>
+              <mat-error *ngIf="transferForm.get('amount')?.hasError('min')">
+                Amount must be greater than 0
+              </mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description (Optional)</mat-label>
+              <textarea matInput formControlName="description" placeholder="Add a note for recipient" rows="2"></textarea>
+              <mat-hint align="end">{{ transferForm.get('description')?.value?.length || 0 }}/100</mat-hint>
+            </mat-form-field>
+            
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="transferForm.invalid || isSubmitting" class="submit-button">
+                <mat-icon>send</mat-icon>
+                <span *ngIf="!isSubmitting">Transfer</span>
+                <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="transfer-info-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>info</mat-icon>
+          <mat-card-title>Transfer Information</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="info-section">
+            <h3>Important Notes</h3>
+            <ul class="info-list">
+              <li>Transfers are processed immediately during banking hours.</li>
+              <li>Make sure to verify the recipient's account number before transferring.</li>
+              <li>Transfers to other iNB accounts are free of charge.</li>
+              <li>Maximum transfer limit is subject to your account type and standing.</li>
+              <li>Fixed Deposit accounts cannot be used for transfers.</li>
+            </ul>
+          </div>
+          
+          <div class="security-note">
+            <mat-icon>security</mat-icon>
+            <p>For your security, all transfers are encrypted and require authentication.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    
+    <div class="history-section">
+      <mat-card class="transfer-history-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>history</mat-icon>
+          <mat-card-title>Recent Transfers</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div *ngIf="recentTransfers.length === 0" class="no-transfers">
+            <mat-icon>swap_horiz</mat-icon>
+            <p>No recent transfers</p>
+          </div>
+          
+          <div *ngIf="recentTransfers.length > 0" class="transfer-list">
+            <div *ngFor="let transfer of recentTransfers" class="transfer-item">
+              <div class="transfer-details">
+                <div class="transfer-header">
+                  <span class="transfer-date">{{ transfer.transactionDate | date:'medium' }}</span>
+                  <span class="transfer-status" [ngClass]="transfer.status === 'COMPLETED' ? 'status-success' : 'status-pending'">
+                    {{ transfer.status }}
+                  </span>
+                </div>
+                
+                <div class="transfer-accounts">
+                  <div class="account-info">
+                    <span class="account-label">From:</span>
+                    <span class="account-number">{{ transfer.fromAccountNumber }}</span>
+                  </div>
+                  <mat-icon class="transfer-icon">arrow_forward</mat-icon>
+                  <div class="account-info">
+                    <span class="account-label">To:</span>
+                    <span class="account-number">{{ transfer.toAccountNumber }}</span>
+                  </div>
+                </div>
+                
+                <div class="transfer-amount">{{ formatCurrency(transfer.amount) }}</div>
+                
+                <div class="transfer-description" *ngIf="transfer.description">
+                  <span class="description-label">Note:</span>
+                  <span class="description-text">{{ transfer.description }}</span>
+                </div>
+                
+                <div class="transfer-reference">
+                  <span class="reference-label">Ref:</span>
+                  <span class="reference-number">{{ transfer.reference }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

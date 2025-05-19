@@ -1,0 +1,217 @@
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="page-title">Money Transfer</h2>
+      <p class="text-muted">Transfer money to other iNB bank accounts</p>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="success" class="alert alert-success" role="alert">
+    <div class="d-flex justify-content-between align-items-center">
+      <span>{{ success }}</span>
+      <button class="btn btn-sm btn-outline-success" (click)="viewTransactions()">
+        <i data-feather="list" class="btn-icon"></i> View Transactions
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading your accounts...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Transfer Details</h4>
+          </div>
+          <div class="card-body">
+            <!-- No Accounts Warning -->
+            <div *ngIf="accounts.length === 0" class="alert alert-warning" role="alert">
+              <i data-feather="alert-circle" class="alert-icon"></i>
+              <span>You don't have any active accounts eligible for money transfers. Please contact the bank for assistance.</span>
+            </div>
+            
+            <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" *ngIf="accounts.length > 0">
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label for="fromAccountId" class="form-label">From Account</label>
+                  <select 
+                    id="fromAccountId" 
+                    formControlName="fromAccountId" 
+                    class="form-select"
+                    [ngClass]="{'is-invalid': transferForm.get('fromAccountId')?.invalid && transferForm.get('fromAccountId')?.touched}"
+                  >
+                    <option value="">Select source account</option>
+                    <option *ngFor="let account of accounts" [value]="account.id">
+                      {{ getAccountTypeLabel(account.accountType) }} - {{ account.accountNumber }} (Balance: ${{ account.balance.toFixed(2) }})
+                    </option>
+                  </select>
+                  <div *ngIf="transferForm.get('fromAccountId')?.invalid && transferForm.get('fromAccountId')?.touched" class="invalid-feedback">
+                    Please select a source account.
+                  </div>
+                </div>
+                
+                <!-- Account Balance Display -->
+                <div class="col-md-12" *ngIf="selectedAccount">
+                  <div class="account-balance-info" [ngClass]="{'negative-balance': selectedAccount.balance < 0}">
+                    <div class="account-balance-header">
+                      <div>
+                        <h6 class="mb-0">Current Balance</h6>
+                        <small *ngIf="selectedAccount.accountType === 'SAVINGS'" class="text-muted">
+                          Minimum Balance: ${{ (selectedAccount as any).minimumBalance?.toFixed(2) || '0.00' }}
+                        </small>
+                        <small *ngIf="selectedAccount.accountType === 'CURRENT'" class="text-muted">
+                          Overdraft Limit: ${{ (selectedAccount as any).overdraftLimit?.toFixed(2) || '0.00' }}
+                        </small>
+                      </div>
+                      <div class="balance-amount">${{ selectedAccount.balance.toFixed(2) }}</div>
+                    </div>
+                    <div class="available-amount">
+                      <span>Available for transfer: </span>
+                      <span class="amount">${{ maxTransferAmount.toFixed(2) }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-12">
+                  <label for="toAccountNumber" class="form-label">To Account Number</label>
+                  <input 
+                    type="text" 
+                    id="toAccountNumber" 
+                    formControlName="toAccountNumber" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': transferForm.get('toAccountNumber')?.invalid && transferForm.get('toAccountNumber')?.touched}"
+                    placeholder="Enter recipient's account number"
+                  >
+                  <div *ngIf="transferForm.get('toAccountNumber')?.invalid && transferForm.get('toAccountNumber')?.touched" class="invalid-feedback">
+                    <div *ngIf="transferForm.get('toAccountNumber')?.errors?.['required']">Recipient's account number is required.</div>
+                    <div *ngIf="transferForm.get('toAccountNumber')?.errors?.['pattern']">Please enter a valid account number (at least 10 digits).</div>
+                  </div>
+                </div>
+                
+                <div class="col-md-12">
+                  <label for="amount" class="form-label">Amount</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input 
+                      type="number" 
+                      id="amount" 
+                      formControlName="amount" 
+                      class="form-control"
+                      [ngClass]="{'is-invalid': transferForm.get('amount')?.invalid && transferForm.get('amount')?.touched}"
+                      step="0.01" 
+                      min="0.01"
+                      placeholder="0.00"
+                    >
+                    <div *ngIf="transferForm.get('amount')?.invalid && transferForm.get('amount')?.touched" class="invalid-feedback">
+                      <div *ngIf="transferForm.get('amount')?.errors?.['required']">Amount is required.</div>
+                      <div *ngIf="transferForm.get('amount')?.errors?.['min']">Amount must be greater than 0.</div>
+                      <div *ngIf="transferForm.get('amount')?.errors?.['exceedsBalance']">Amount exceeds available balance.</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Balance After Transfer -->
+                <div class="col-md-12" *ngIf="selectedAccount && transferForm.get('amount')?.value">
+                  <div class="balance-after-transfer">
+                    <span>Balance after transfer: </span>
+                    <span class="amount" [ngClass]="{'negative-amount': calculateRemainingBalance() < 0}">
+                      ${{ calculateRemainingBalance().toFixed(2) }}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="col-md-12">
+                  <label for="description" class="form-label">Description/Purpose</label>
+                  <input 
+                    type="text" 
+                    id="description" 
+                    formControlName="description" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': transferForm.get('description')?.invalid && transferForm.get('description')?.touched}"
+                    placeholder="Purpose of transfer"
+                  >
+                  <div *ngIf="transferForm.get('description')?.invalid && transferForm.get('description')?.touched" class="invalid-feedback">
+                    Description is required.
+                  </div>
+                </div>
+                
+                <div class="col-12 mt-4">
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
+                      <i data-feather="refresh-cw" class="btn-icon"></i> Reset
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="submitting || transferForm.invalid">
+                      <i data-feather="send" class="btn-icon"></i>
+                      <span *ngIf="!submitting">Transfer Money</span>
+                      <span *ngIf="submitting">Processing...</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h4 class="mb-0">Transfer Information</h4>
+          </div>
+          <div class="card-body">
+            <div class="transfer-info-section">
+              <h5 class="info-title">
+                <i data-feather="info" class="info-icon"></i> Important Information
+              </h5>
+              <ul class="info-list">
+                <li>Transfers to other iNB accounts are processed immediately.</li>
+                <li>Maximum daily transfer limit may apply to your account.</li>
+                <li>You can only transfer from active accounts.</li>
+                <li>Transfers from savings accounts cannot reduce the balance below the minimum required balance.</li>
+              </ul>
+            </div>
+            
+            <div class="transfer-info-section">
+              <h5 class="info-title">
+                <i data-feather="shield" class="info-icon"></i> Secure Transfers
+              </h5>
+              <p>All your transactions are secured with industry-standard encryption protocols.</p>
+            </div>
+            
+            <div class="transfer-image">
+              <img src="https://pixabay.com/get/g2a1273f4e885daf35ec5395963669546437e7c85d51c66555058a67f96538a45b3f3cbe1a5a925d0ced56c102eac4d847ecfcd9567befdb3b4860dde4e95c1bd_1280.jpg" 
+                   alt="Money Transfer" class="img-fluid rounded">
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Recent Transfers</h4>
+          </div>
+          <div class="card-body">
+            <p>View your recent money transfer history.</p>
+            <div class="d-grid">
+              <button class="btn btn-outline-primary" (click)="viewTransactions()">
+                <i data-feather="list" class="btn-icon"></i> View Transfer History
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,91 @@
+<div class="navigation-container" [class.expanded]="isExpanded" [class.collapsed]="!isExpanded">
+  <div class="sidebar-header">
+    <div class="logo-container" *ngIf="isExpanded">
+      <img src="https://pixabay.com/get/g17595c1f9b700cd20f351044b0b4173aae98895d0e19bee1ab1dfcabd3b93c31cffe2a6b745768fd309d05ba6779418684ad607dfe81968c4da2830085e308e2_1280.jpg" 
+           alt="iNB Banking Logo" class="banking-logo">
+      <h1 class="bank-name">iNB Banking</h1>
+    </div>
+    <button mat-icon-button class="toggle-button" (click)="toggleSidebar()">
+      <mat-icon>{{ isExpanded ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+    </button>
+  </div>
+
+  <div class="user-profile" *ngIf="isExpanded">
+    <div class="user-avatar">
+      <div class="avatar-circle">
+        {{ getUserInitials() }}
+      </div>
+    </div>
+    <div class="user-info">
+      <h3 class="user-name">{{ getUserDisplayName() }}</h3>
+      <p class="user-status">Online</p>
+    </div>
+  </div>
+
+  <div class="sidebar-menu">
+    <div class="menu-section">
+      <div class="menu-title" *ngIf="isExpanded">Dashboard</div>
+      <div class="menu-items">
+        <div class="menu-item" [routerLink]="['/home']" routerLinkActive="active" (click)="navigateTo('/home')">
+          <mat-icon>dashboard</mat-icon>
+          <span class="menu-label" *ngIf="isExpanded">Home</span>
+        </div>
+        <div class="menu-item" [routerLink]="['/accounts']" routerLinkActive="active" (click)="navigateTo('/accounts')">
+          <mat-icon>account_balance</mat-icon>
+          <span class="menu-label" *ngIf="isExpanded">Accounts</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title" *ngIf="isExpanded">Transactions</div>
+      <div class="menu-items">
+        <div class="menu-item" [routerLink]="['/money-transfer']" routerLinkActive="active" (click)="navigateTo('/money-transfer')">
+          <mat-icon>swap_horiz</mat-icon>
+          <span class="menu-label" *ngIf="isExpanded">Money Transfer</span>
+        </div>
+        <div class="menu-item" [routerLink]="['/bill-payment']" routerLinkActive="active" (click)="navigateTo('/bill-payment')">
+          <mat-icon>receipt</mat-icon>
+          <span class="menu-label" *ngIf="isExpanded">Bill Payment</span>
+        </div>
+        <div class="menu-item" [routerLink]="['/cheque-deposit']" routerLinkActive="active" (click)="navigateTo('/cheque-deposit')">
+          <mat-icon>description</mat-icon>
+          <span class="menu-label" *ngIf="isExpanded">Cheque Deposit</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title" *ngIf="isExpanded">User</div>
+      <div class="menu-items">
+        <div class="menu-item" (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          <span class="menu-label" *ngIf="isExpanded">Logout</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer" *ngIf="isExpanded">
+    <p class="copyright">© 2023 iNB Banking</p>
+    <p class="version">v1.0.0</p>
+  </div>
+</div>
+
+<mat-toolbar class="mobile-header" *ngIf="isMobile">
+  <button mat-icon-button (click)="toggleSidebar()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span class="mobile-title">iNB Banking</span>
+  <button mat-icon-button [matMenuTriggerFor]="userMenu">
+    <div class="mobile-avatar">{{ getUserInitials() }}</div>
+  </button>
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<div class="overlay" *ngIf="isExpanded && isMobile" (click)="toggleSidebar()"></div>

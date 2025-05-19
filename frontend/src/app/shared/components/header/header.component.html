@@ -1,0 +1,27 @@
+<mat-toolbar color="primary" class="header-toolbar">
+  <div class="header-left">
+    <button mat-icon-button (click)="navigateToHome()" aria-label="Home">
+      <mat-icon>home</mat-icon>
+    </button>
+    <span class="app-title">iNB Internet Banking</span>
+  </div>
+  
+  <div class="header-right">
+    <span *ngIf="currentUser" class="user-name">Welcome, {{ currentUser.firstName }}</span>
+    
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="User menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item disabled>
+        <mat-icon>person</mat-icon>
+        <span>{{ currentUser?.username }}</span>
+      </button>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>

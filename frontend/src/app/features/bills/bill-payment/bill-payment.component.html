@@ -1,0 +1,212 @@
+<div class="bill-payment-container">
+  <div class="page-header">
+    <h1>Bill Payments</h1>
+  </div>
+  
+  <div class="content-container">
+    <div class="payment-section">
+      <mat-card class="bill-form-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>receipt</mat-icon>
+          <mat-card-title>Pay Utility Bills</mat-card-title>
+          <mat-card-subtitle>Make instant or scheduled payments</mat-card-subtitle>
+        </mat-card-header>
+        
+        <img mat-card-image src="https://pixabay.com/get/g2a1273f4e885daf35ec5395963669546437e7c85d51c66555058a67f96538a45b3f3cbe1a5a925d0ced56c102eac4d847ecfcd9567befdb3b4860dde4e95c1bd_1280.jpg" alt="Bill Payment" class="bill-image">
+        
+        <mat-card-content>
+          <div *ngIf="isLoading || isLoadingProviders" class="loading-container">
+            <mat-spinner [diameter]="40"></mat-spinner>
+            <p>Loading...</p>
+          </div>
+          
+          <form *ngIf="!isLoading && !isLoadingProviders" [formGroup]="billForm" (ngSubmit)="onSubmit()" class="bill-form">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select Account</mat-label>
+              <mat-select formControlName="accountId">
+                <mat-option *ngFor="let account of accounts" [value]="account.id">
+                  {{ getAccountLabel(account) }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="billForm.get('accountId')?.hasError('required')">
+                Please select an account
+              </mat-error>
+            </mat-form-field>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Bill Type</mat-label>
+                <mat-select formControlName="billType">
+                  <mat-option *ngFor="let type of billTypes" [value]="type">
+                    {{ getBillTypeLabel(type) }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="billForm.get('billType')?.hasError('required')">
+                  Bill type is required
+                </mat-error>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Provider</mat-label>
+                <mat-select formControlName="provider" [disabled]="!billForm.get('billType')?.value">
+                  <mat-option *ngFor="let provider of getProvidersForBillType(billForm.get('billType')?.value)" [value]="provider">
+                    {{ provider }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="billForm.get('provider')?.hasError('required')">
+                  Provider is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Bill Number / Customer ID</mat-label>
+                <input matInput formControlName="billNumber" placeholder="Enter your bill number">
+                <mat-error *ngIf="billForm.get('billNumber')?.hasError('required')">
+                  Bill number is required
+                </mat-error>
+                <mat-error *ngIf="billForm.get('billNumber')?.hasError('minlength')">
+                  Bill number must be at least 5 characters
+                </mat-error>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline">
+                <mat-label>Amount</mat-label>
+                <input matInput type="number" formControlName="amount" placeholder="Enter bill amount">
+                <span matPrefix>₹&nbsp;</span>
+                <mat-error *ngIf="billForm.get('amount')?.hasError('required')">
+                  Amount is required
+                </mat-error>
+                <mat-error *ngIf="billForm.get('amount')?.hasError('min')">
+                  Amount must be greater than 0
+                </mat-error>
+              </mat-form-field>
+            </div>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description (Optional)</mat-label>
+              <textarea matInput formControlName="description" placeholder="Add a note for reference" rows="2"></textarea>
+            </mat-form-field>
+            
+            <div class="payment-options">
+              <mat-checkbox formControlName="payNow" color="primary">Pay Now</mat-checkbox>
+              
+              <mat-form-field appearance="outline" *ngIf="!billForm.get('payNow')?.value">
+                <mat-label>Schedule Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="scheduledDate">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-error *ngIf="!billForm.get('payNow')?.value && !billForm.get('scheduledDate')?.value">
+                  Please select a date
+                </mat-error>
+              </mat-form-field>
+            </div>
+            
+            <div class="form-actions">
+              <button mat-raised-button type="button" color="accent" (click)="resetForm()">
+                <mat-icon>clear</mat-icon> Reset
+              </button>
+              
+              <button mat-raised-button color="primary" type="submit" [disabled]="billForm.invalid || isSubmitting">
+                <mat-icon>{{ billForm.get('payNow')?.value ? 'payment' : 'schedule' }}</mat-icon>
+                <span *ngIf="!isSubmitting">{{ billForm.get('payNow')?.value ? 'Pay Now' : 'Schedule Payment' }}</span>
+                <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    
+    <div class="history-section">
+      <mat-card class="scheduled-bills-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>schedule</mat-icon>
+          <mat-card-title>Scheduled Bills</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div *ngIf="isLoadingHistory" class="loading-container">
+            <mat-spinner [diameter]="30"></mat-spinner>
+            <p>Loading scheduled bills...</p>
+          </div>
+          
+          <div *ngIf="!isLoadingHistory && scheduledBills.length === 0" class="no-bills">
+            <mat-icon>event_busy</mat-icon>
+            <p>No scheduled bill payments</p>
+          </div>
+          
+          <div *ngIf="!isLoadingHistory && scheduledBills.length > 0" class="bills-list">
+            <div *ngFor="let bill of scheduledBills" class="bill-item">
+              <div class="bill-details">
+                <div class="bill-header">
+                  <span class="bill-type">{{ bill.billType }}</span>
+                  <span class="bill-date">{{ bill.scheduledDate | date:'mediumDate' }}</span>
+                </div>
+                
+                <div class="bill-provider-number">
+                  <span class="bill-provider">{{ bill.provider }}</span>
+                  <span class="bill-number">Bill #: {{ bill.billNumber }}</span>
+                </div>
+                
+                <div class="bill-amount">{{ formatCurrency(bill.amount) }}</div>
+                
+                <div class="bill-description" *ngIf="bill.description">
+                  {{ bill.description }}
+                </div>
+              </div>
+              
+              <div class="bill-actions">
+                <button mat-icon-button color="warn" (click)="cancelScheduledBill(bill.id)" matTooltip="Cancel">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="payment-history-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>history</mat-icon>
+          <mat-card-title>Payment History</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div *ngIf="isLoadingHistory" class="loading-container">
+            <mat-spinner [diameter]="30"></mat-spinner>
+            <p>Loading payment history...</p>
+          </div>
+          
+          <div *ngIf="!isLoadingHistory && paidBills.length === 0" class="no-bills">
+            <mat-icon>receipt_long</mat-icon>
+            <p>No bill payment history</p>
+          </div>
+          
+          <div *ngIf="!isLoadingHistory && paidBills.length > 0" class="bills-list">
+            <div *ngFor="let bill of paidBills" class="bill-item">
+              <div class="bill-details">
+                <div class="bill-header">
+                  <span class="bill-type">{{ bill.billType }}</span>
+                  <span class="bill-date">{{ bill.paymentDate | date:'mediumDate' }}</span>
+                </div>
+                
+                <div class="bill-provider-number">
+                  <span class="bill-provider">{{ bill.provider }}</span>
+                  <span class="bill-number">Bill #: {{ bill.billNumber }}</span>
+                </div>
+                
+                <div class="bill-amount">{{ formatCurrency(bill.amount) }}</div>
+                
+                <div class="bill-description" *ngIf="bill.description">
+                  {{ bill.description }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

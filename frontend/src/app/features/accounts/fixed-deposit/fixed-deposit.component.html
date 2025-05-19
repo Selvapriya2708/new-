@@ -1,0 +1,194 @@
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="page-title">Fixed Deposits</h2>
+      <p class="text-muted">View and manage your fixed deposits</p>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading your fixed deposits...</p>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <!-- Interest Rates Information Card -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="mb-0">Fixed Deposit Interest Rates</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="text-muted">The maturity period and rate of interest for Fixed Deposits will be as follows:</p>
+            <div class="table-responsive">
+              <table class="table table-bordered rate-table">
+                <thead class="table-light">
+                  <tr>
+                    <th>Maturity Period</th>
+                    <th>Rate of Interest</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let rate of fdRateInfo">
+                    <td>{{ rate.term }} months</td>
+                    <td>{{ rate.rate }}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="fd-note">
+              <h5><i data-feather="info" class="me-2"></i> Important Information</h5>
+              <ul>
+                <li>Withdrawal and Deposit operations cannot be performed on Fixed Deposit accounts.</li>
+                <li>Interest earned on fixed deposits is subject to tax laws.</li>
+                <li>Early withdrawal may result in a penalty and reduced interest rates.</li>
+                <li>The interest rates are subject to change but will not affect existing fixed deposits.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+      <div class="col-md-4 mb-3">
+        <div class="card summary-card bg-gradient-primary h-100">
+          <div class="card-body">
+            <div class="summary-content">
+              <div class="summary-icon">
+                <i data-feather="dollar-sign"></i>
+              </div>
+              <div class="summary-details">
+                <h6 class="summary-title">Total Principal</h6>
+                <h3 class="summary-value">${{ getTotalInvestedAmount().toFixed(2) }}</h3>
+                <p class="summary-description">Amount invested in all Fixed Deposits</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-3">
+        <div class="card summary-card bg-gradient-success h-100">
+          <div class="card-body">
+            <div class="summary-content">
+              <div class="summary-icon">
+                <i data-feather="trending-up"></i>
+              </div>
+              <div class="summary-details">
+                <h6 class="summary-title">Total Maturity Value</h6>
+                <h3 class="summary-value">${{ getTotalMaturityAmount().toFixed(2) }}</h3>
+                <p class="summary-description">Expected total value at maturity</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-3">
+        <div class="card summary-card bg-gradient-info h-100">
+          <div class="card-body">
+            <div class="summary-content">
+              <div class="summary-icon">
+                <i data-feather="award"></i>
+              </div>
+              <div class="summary-details">
+                <h6 class="summary-title">Total Interest Earnings</h6>
+                <h3 class="summary-value">${{ getTotalEarnings().toFixed(2) }}</h3>
+                <p class="summary-description">Total interest earned at maturity</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fixed Deposits List -->
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">Your Fixed Deposits</h4>
+      </div>
+      <div class="card-body">
+        <div *ngIf="fixedDeposits.length === 0" class="text-center py-4">
+          <p class="text-muted">You don't have any fixed deposits yet.</p>
+          <button class="btn btn-primary mt-2">
+            <i data-feather="plus" class="me-2"></i> Create New Fixed Deposit
+          </button>
+        </div>
+        
+        <div *ngIf="fixedDeposits.length > 0">
+          <div class="row">
+            <div *ngFor="let deposit of fixedDeposits" class="col-md-6 mb-4">
+              <div class="fd-card">
+                <div class="fd-card-header">
+                  <h5 class="mb-0">Fixed Deposit - {{ deposit.accountNumber }}</h5>
+                  <span class="badge bg-{{ getStatusColor(deposit.status) }}">{{ deposit.status }}</span>
+                </div>
+                <div class="fd-card-body">
+                  <div class="fd-detail-item">
+                    <span class="fd-label">Principal Amount</span>
+                    <span class="fd-value">${{ deposit.principalAmount.toFixed(2) }}</span>
+                  </div>
+                  <div class="fd-detail-item">
+                    <span class="fd-label">Interest Rate</span>
+                    <span class="fd-value">{{ deposit.interestRate }}%</span>
+                  </div>
+                  <div class="fd-detail-item">
+                    <span class="fd-label">Term</span>
+                    <span class="fd-value">{{ deposit.term }} Months</span>
+                  </div>
+                  <div class="fd-detail-item">
+                    <span class="fd-label">Start Date</span>
+                    <span class="fd-value">{{ deposit.openDate | date: 'mediumDate' }}</span>
+                  </div>
+                  <div class="fd-detail-item">
+                    <span class="fd-label">Maturity Date</span>
+                    <span class="fd-value">{{ deposit.maturityDate | date: 'mediumDate' }}</span>
+                  </div>
+                  <div class="fd-detail-item">
+                    <span class="fd-label">Maturity Amount</span>
+                    <span class="fd-value fd-maturity-amount">${{ deposit.maturityAmount.toFixed(2) }}</span>
+                  </div>
+                  <div class="fd-detail-item">
+                    <span class="fd-label">Interest Earnings</span>
+                    <span class="fd-value fd-interest">${{ (deposit.maturityAmount - deposit.principalAmount).toFixed(2) }}</span>
+                  </div>
+                  
+                  <div class="fd-progress-container">
+                    <div class="fd-progress-header">
+                      <span>Progress to Maturity</span>
+                      <span>{{ getRemainingDays(deposit.maturityDate) }} days left</span>
+                    </div>
+                    <div class="progress">
+                      <div 
+                        class="progress-bar bg-success" 
+                        role="progressbar" 
+                        [style.width]="getProgressPercent(deposit.openDate, deposit.maturityDate) + '%'" 
+                        [attr.aria-valuenow]="getProgressPercent(deposit.openDate, deposit.maturityDate)" 
+                        aria-valuemin="0" 
+                        aria-valuemax="100">
+                        {{ getProgressPercent(deposit.openDate, deposit.maturityDate) }}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

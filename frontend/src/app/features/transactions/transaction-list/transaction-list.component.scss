@@ -1,0 +1,177 @@
+.transaction-list-container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    
+    h1 {
+      margin: 0;
+      color: #3f51b5;
+    }
+    
+    .account-info {
+      text-align: right;
+      
+      .account-number {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 4px;
+      }
+      
+      .account-balance {
+        font-size: 18px;
+        font-weight: 700;
+        color: #333;
+        margin: 0;
+      }
+    }
+  }
+}
+
+.filter-card {
+  margin-bottom: 24px;
+  
+  .filter-form {
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+      
+      mat-form-field {
+        flex: 1;
+      }
+      
+      .search-field {
+        flex: 1;
+      }
+      
+      .reset-button {
+        height: 56px;
+        align-self: center;
+        
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  
+  p {
+    margin-top: 16px;
+    color: #666;
+  }
+}
+
+.no-transactions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: #3f51b5;
+    margin-bottom: 16px;
+  }
+  
+  h2 {
+    margin-bottom: 16px;
+    color: #333;
+  }
+  
+  p {
+    color: #666;
+    max-width: 400px;
+  }
+}
+
+.transactions-table-container {
+  .table-card {
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  .transactions-table {
+    width: 100%;
+    
+    .transaction-type {
+      font-weight: 500;
+    }
+    
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      
+      &.status-completed {
+        background-color: #e8f5e9;
+        color: #4caf50;
+      }
+      
+      &.status-pending {
+        background-color: #fff8e1;
+        color: #ff9800;
+      }
+      
+      &.status-failed {
+        background-color: #ffebee;
+        color: #f44336;
+      }
+      
+      &.status-scheduled {
+        background-color: #e3f2fd;
+        color: #2196f3;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .account-info {
+      text-align: left;
+      margin-top: 8px;
+    }
+  }
+  
+  .filter-card .filter-form .form-row {
+    flex-direction: column;
+    gap: 0;
+    
+    .reset-button {
+      width: 100%;
+      margin-top: 8px;
+    }
+  }
+  
+  .transactions-table-container {
+    overflow-x: auto;
+  }
+}

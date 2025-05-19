@@ -1,0 +1,76 @@
+<div class="accounts-container">
+  <div class="page-header">
+    <div class="page-title">
+      <h1>
+        <ng-container *ngIf="!accountType">All Accounts</ng-container>
+        <ng-container *ngIf="accountType === 'SAVINGS'">Savings Accounts</ng-container>
+        <ng-container *ngIf="accountType === 'CURRENT'">Current Accounts</ng-container>
+      </h1>
+      <p class="subtitle">Manage your bank accounts and view balances</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="openNewAccountDialog()">
+      <mat-icon>add</mat-icon> Request New Account
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your accounts...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>There was an error loading your accounts. Please try again.</p>
+    <button mat-raised-button color="primary" (click)="loadAccounts()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <div *ngIf="filteredAccounts.length === 0" class="no-accounts">
+      <mat-icon>info</mat-icon>
+      <p>
+        <ng-container *ngIf="!accountType">You don't have any accounts yet.</ng-container>
+        <ng-container *ngIf="accountType === 'SAVINGS'">You don't have any savings accounts yet.</ng-container>
+        <ng-container *ngIf="accountType === 'CURRENT'">You don't have any current accounts yet.</ng-container>
+      </p>
+      <button mat-raised-button color="primary" (click)="openNewAccountDialog()">Request New Account</button>
+    </div>
+
+    <div *ngIf="filteredAccounts.length > 0" class="accounts-grid">
+      <div *ngFor="let account of filteredAccounts" class="account-card" [ngClass]="{
+        'savings': account.accountType === 'SAVINGS',
+        'current': account.accountType === 'CURRENT',
+        'fd': account.accountType === 'FIXED_DEPOSIT'
+      }">
+        <div class="account-header">
+          <div class="account-icon">
+            <mat-icon>{{getAccountTypeIcon(account.accountType)}}</mat-icon>
+          </div>
+          <div class="account-type">{{getAccountTypeName(account.accountType)}}</div>
+          <div class="account-status" [ngClass]="account.status.toLowerCase()">{{account.status}}</div>
+        </div>
+        
+        <div class="account-details">
+          <div class="account-number">{{account.accountNumber}}</div>
+          <div class="account-balance">{{formatCurrency(account.balance)}}</div>
+          <div class="account-opened">Opened on: {{account.openedDate | date:'mediumDate'}}</div>
+        </div>
+        
+        <div class="account-actions">
+          <button mat-stroked-button color="primary" [routerLink]="['/accounts', account.id]">
+            <mat-icon>visibility</mat-icon> Details
+          </button>
+          
+          <button mat-stroked-button *ngIf="account.accountType !== 'FIXED_DEPOSIT'" [routerLink]="['/accounts', account.id, 'mini-statement']">
+            <mat-icon>receipt_long</mat-icon> Mini Statement
+          </button>
+          
+          <ng-container *ngIf="account.accountType !== 'FIXED_DEPOSIT'">
+            <button mat-stroked-button [routerLink]="['/payments/money-transfer']" [queryParams]="{fromAccount: account.id}">
+              <mat-icon>send</mat-icon> Transfer
+            </button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

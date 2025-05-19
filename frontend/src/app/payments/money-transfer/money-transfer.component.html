@@ -1,0 +1,125 @@
+<div class="transfer-container">
+  <div class="page-header">
+    <h1>Money Transfer</h1>
+    <p class="subtitle">Transfer money between your accounts or to other iNB accounts</p>
+  </div>
+
+  <div class="content-section">
+    <div class="form-card card">
+      <h2>Fund Transfer</h2>
+      <form [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>From Account</mat-label>
+          <mat-select formControlName="fromAccountId" [disabled]="accountsLoading" (selectionChange)="updateSourceAccount()">
+            <mat-option *ngIf="accountsLoading" [value]="''">Loading accounts...</mat-option>
+            <mat-option *ngFor="let account of accounts" [value]="account.id">
+              {{getAccountDisplay(account)}}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="accounts.length === 0 && !accountsLoading">No eligible accounts found.</mat-hint>
+          <mat-error *ngIf="transferForm.get('fromAccountId')?.hasError('required')">
+            Please select an account
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>To Account</mat-label>
+          <mat-select formControlName="toAccountId" [disabled]="accountsLoading">
+            <mat-option *ngIf="accountsLoading" [value]="''">Loading accounts...</mat-option>
+            <mat-option *ngFor="let account of accounts" [value]="account.id">
+              {{getAccountDisplay(account)}}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="accounts.length === 0 && !accountsLoading">No eligible accounts found.</mat-hint>
+          <mat-error *ngIf="transferForm.get('toAccountId')?.hasError('required')">
+            Please select an account
+          </mat-error>
+        </mat-form-field>
+        
+        <div *ngIf="transferForm.hasError('sameAccounts')" class="validation-error">
+          Source and destination accounts cannot be the same
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Amount</mat-label>
+          <input matInput type="number" formControlName="amount" placeholder="Enter amount">
+          <span matPrefix>₹&nbsp;</span>
+          <mat-hint *ngIf="sourceAccount">Available Balance: {{formatCurrency(sourceAccount.balance)}}</mat-hint>
+          <mat-error *ngIf="transferForm.get('amount')?.hasError('required')">
+            Amount is required
+          </mat-error>
+          <mat-error *ngIf="transferForm.get('amount')?.hasError('min')">
+            Amount must be greater than 0
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description (Optional)</mat-label>
+          <textarea matInput formControlName="description" rows="2" placeholder="Add a note for this transfer"></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="transferForm.reset()">Reset</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="transferForm.invalid || submitting || accountsLoading">
+            Transfer Funds
+            <mat-spinner *ngIf="submitting" diameter="20" class="spinner"></mat-spinner>
+          </button>
+        </div>
+      </form>
+
+      <div class="success-message" *ngIf="success">
+        <mat-icon color="primary">check_circle</mat-icon>
+        <div class="success-content">
+          <h3>Transfer Successful</h3>
+          <p>Your money transfer has been completed successfully.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card card">
+      <h2>Transfer Information</h2>
+      <div class="info-points">
+        <div class="info-point">
+          <div class="info-icon">
+            <mat-icon>bolt</mat-icon>
+          </div>
+          <div class="info-text">
+            <h3>Instant Transfers</h3>
+            <p>Money transfers between iNB accounts are processed instantly.</p>
+          </div>
+        </div>
+        <div class="info-point">
+          <div class="info-icon">
+            <mat-icon>account_balance</mat-icon>
+          </div>
+          <div class="info-text">
+            <h3>Free of Charge</h3>
+            <p>There are no charges for transfers between your accounts or to other iNB accounts.</p>
+          </div>
+        </div>
+        <div class="info-point">
+          <div class="info-icon">
+            <mat-icon>history</mat-icon>
+          </div>
+          <div class="info-text">
+            <h3>Transfer History</h3>
+            <p>All your transfers appear in your account statement immediately.</p>
+          </div>
+        </div>
+        <div class="info-point">
+          <div class="info-icon">
+            <mat-icon>security</mat-icon>
+          </div>
+          <div class="info-text">
+            <h3>Secure Transfers</h3>
+            <p>All transfers are secured with bank-grade encryption.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="transfer-image">
+        <img src="https://pixabay.com/get/g2a1273f4e885daf35ec5395963669546437e7c85d51c66555058a67f96538a45b3f3cbe1a5a925d0ced56c102eac4d847ecfcd9567befdb3b4860dde4e95c1bd_1280.jpg" alt="Financial Transaction Image">
+      </div>
+    </div>
+  </div>
+</div>

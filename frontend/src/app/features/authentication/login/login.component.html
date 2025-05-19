@@ -1,0 +1,82 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="card-header text-center">
+      <h2 class="mb-0">iNB Banking Login</h2>
+    </div>
+    <div class="card-body">
+      <div class="auth-illustration">
+        <img src="https://pixabay.com/get/g135e01e36ba4adbdefbf5e1d76c7e32e2a1e1ced22d3f374ff9b5f616bef788109fc278916f6d1d47c55b0cfefcfa47ce61460119269799218c6ed0590c3dd3e_1280.jpg" 
+             alt="Secure Banking" class="img-fluid">
+      </div>
+      
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i data-feather="user"></i>
+            </span>
+            <input 
+              type="text" 
+              formControlName="username" 
+              class="form-control" 
+              id="username" 
+              [ngClass]="{ 'is-invalid': submitted && f['username'].errors }"
+              placeholder="Enter username"
+            >
+          </div>
+          <div *ngIf="submitted && f['username'].errors" class="invalid-feedback d-block">
+            <div *ngIf="f['username'].errors['required']">Username is required</div>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i data-feather="lock"></i>
+            </span>
+            <input 
+              type="password" 
+              formControlName="password" 
+              class="form-control" 
+              id="password" 
+              [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+              placeholder="Enter password"
+            >
+          </div>
+          <div *ngIf="submitted && f['password'].errors" class="invalid-feedback d-block">
+            <div *ngIf="f['password'].errors['required']">Password is required</div>
+            <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
+          </div>
+        </div>
+        
+        <div class="d-grid">
+          <button 
+            type="submit" 
+            class="btn btn-primary btn-lg" 
+            [disabled]="loading || failedAttempts >= 3"
+          >
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Login
+          </button>
+        </div>
+        
+        <div class="text-center mt-3">
+          <p>
+            Don't have an account? <a routerLink="/register">Register now</a>
+          </p>
+        </div>
+      </form>
+    </div>
+    
+    <div class="auth-footer">
+      <div class="secure-banking-note">
+        <i data-feather="shield" class="me-2"></i>
+        Secure Banking with iNB
+      </div>
+    </div>
+  </div>
+</div>

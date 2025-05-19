@@ -1,0 +1,260 @@
+.transfer-container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  
+  h1 {
+    margin: 0;
+    color: #3f51b5;
+  }
+}
+
+.content-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.transfer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.transfer-form-card {
+  .transfer-image {
+    height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    
+    p {
+      margin-top: 16px;
+      color: #666;
+    }
+  }
+  
+  .transfer-form {
+    .full-width {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+      
+      .submit-button {
+        min-width: 180px;
+        height: 48px;
+        
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+.transfer-info-card {
+  .info-section {
+    margin-bottom: 24px;
+    
+    h3 {
+      color: #3f51b5;
+      margin-top: 0;
+    }
+    
+    .info-list {
+      padding-left: 20px;
+      
+      li {
+        margin-bottom: 10px;
+        color: #555;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+  
+  .security-note {
+    display: flex;
+    align-items: flex-start;
+    background-color: #e8f5e9;
+    padding: 16px;
+    border-radius: 4px;
+    
+    mat-icon {
+      color: #4caf50;
+      margin-right: 12px;
+    }
+    
+    p {
+      margin: 0;
+      color: #333;
+    }
+  }
+}
+
+.transfer-history-card {
+  .no-transfers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    
+    mat-icon {
+      font-size: 48px;
+      height: 48px;
+      width: 48px;
+      color: #cccccc;
+      margin-bottom: 16px;
+    }
+    
+    p {
+      color: #888;
+    }
+  }
+  
+  .transfer-list {
+    max-height: 600px;
+    overflow-y: auto;
+    
+    .transfer-item {
+      padding: 16px;
+      border-bottom: 1px solid #f0f0f0;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .transfer-details {
+        .transfer-header {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          
+          .transfer-date {
+            font-size: 14px;
+            color: #666;
+          }
+          
+          .transfer-status {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            
+            &.status-success {
+              background-color: #e8f5e9;
+              color: #4caf50;
+            }
+            
+            &.status-pending {
+              background-color: #fff8e1;
+              color: #ff9800;
+            }
+          }
+        }
+        
+        .transfer-accounts {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          
+          .account-info {
+            .account-label {
+              font-size: 12px;
+              color: #666;
+              display: block;
+            }
+            
+            .account-number {
+              font-weight: 500;
+              font-size: 14px;
+            }
+          }
+          
+          .transfer-icon {
+            color: #3f51b5;
+          }
+        }
+        
+        .transfer-amount {
+          font-size: 18px;
+          font-weight: 700;
+          color: #333;
+          margin-bottom: 12px;
+          text-align: center;
+        }
+        
+        .transfer-description {
+          margin-bottom: 8px;
+          font-size: 14px;
+          
+          .description-label {
+            color: #666;
+            margin-right: 4px;
+          }
+          
+          .description-text {
+            color: #333;
+          }
+        }
+        
+        .transfer-reference {
+          font-size: 12px;
+          
+          .reference-label {
+            color: #666;
+            margin-right: 4px;
+          }
+          
+          .reference-number {
+            color: #333;
+            font-family: monospace;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .content-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .transfer-form-card .transfer-form .form-actions .submit-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .transfer-accounts {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+    
+    .transfer-icon {
+      transform: rotate(90deg);
+      margin: 0 auto;
+    }
+  }
+}

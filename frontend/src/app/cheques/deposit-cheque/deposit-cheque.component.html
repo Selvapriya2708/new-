@@ -1,0 +1,146 @@
+<div class="deposit-cheque-container">
+  <div class="page-header">
+    <h1>Deposit Cheque</h1>
+    <p class="subtitle">Fill in the details to deposit a cheque to your account</p>
+  </div>
+
+  <div class="content-section">
+    <div class="instruction-card card">
+      <h2>How to deposit a cheque</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-icon">1</div>
+          <div class="step-content">
+            <h3>Fill the form</h3>
+            <p>Complete the online cheque deposit form with all the required details.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-icon">2</div>
+          <div class="step-content">
+            <h3>Print the slip</h3>
+            <p>Print the bank slip generated after submission.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-icon">3</div>
+          <div class="step-content">
+            <h3>Send to bank</h3>
+            <p>Attach the slip to the cheque and send it to the bank by post or courier.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-icon">4</div>
+          <div class="step-content">
+            <h3>Track status</h3>
+            <p>You can check the status of your deposited cheque online at any time.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="form-card card">
+      <h2>Cheque Deposit Form</h2>
+      <form [formGroup]="depositForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Select Account</mat-label>
+          <mat-select formControlName="accountId">
+            <mat-option *ngFor="let account of accounts" [value]="account.id">
+              {{getAccountDisplay(account)}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="depositForm.get('accountId')?.hasError('required')">
+            Please select an account
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Cheque Number</mat-label>
+            <input matInput formControlName="chequeNumber" placeholder="Enter cheque number">
+            <mat-error *ngIf="depositForm.get('chequeNumber')?.hasError('required')">
+              Cheque number is required
+            </mat-error>
+            <mat-error *ngIf="depositForm.get('chequeNumber')?.hasError('pattern')">
+              Please enter a valid cheque number (6-12 digits)
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Amount</mat-label>
+            <input matInput type="number" formControlName="amount" placeholder="Enter amount">
+            <span matPrefix>₹&nbsp;</span>
+            <mat-error *ngIf="depositForm.get('amount')?.hasError('required')">
+              Amount is required
+            </mat-error>
+            <mat-error *ngIf="depositForm.get('amount')?.hasError('min')">
+              Amount must be greater than 0
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Payee Name</mat-label>
+          <input matInput formControlName="payeeName" placeholder="Enter payee name">
+          <mat-error *ngIf="depositForm.get('payeeName')?.hasError('required')">
+            Payee name is required
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Bank Name</mat-label>
+            <input matInput formControlName="bankName" placeholder="Enter bank name">
+            <mat-error *ngIf="depositForm.get('bankName')?.hasError('required')">
+              Bank name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Branch Name</mat-label>
+            <input matInput formControlName="branchName" placeholder="Enter branch name">
+            <mat-error *ngIf="depositForm.get('branchName')?.hasError('required')">
+              Branch name is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Notes (Optional)</mat-label>
+          <textarea matInput formControlName="notes" rows="3" placeholder="Add any additional notes"></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="depositForm.invalid || submitting" class="submit-button">
+            <mat-icon>check_circle</mat-icon>
+            <span>Submit</span>
+            <mat-spinner *ngIf="submitting" diameter="20" class="spinner"></mat-spinner>
+          </button>
+        </div>
+      </form>
+
+      <div class="success-message" *ngIf="success">
+        <mat-icon color="primary">check_circle</mat-icon>
+        <div class="success-content">
+          <h3>Cheque Deposit Request Submitted</h3>
+          <p>Please print the bank slip and attach it to your cheque before sending it to the bank.</p>
+          <button mat-raised-button color="primary" (click)="printBankSlip()">
+            <mat-icon>print</mat-icon> Print Bank Slip
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-status-card card">
+      <div class="status-card-content">
+        <div class="status-info">
+          <h3>Check Deposited Cheques Status</h3>
+          <p>You can track the status of all your deposited cheques and see which ones have been cleared or rejected.</p>
+        </div>
+        <button mat-raised-button color="primary" [routerLink]="['/cheques/status']">
+          <mat-icon>visibility</mat-icon> View Cheque Status
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

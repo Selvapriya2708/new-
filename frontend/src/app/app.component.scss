@@ -1,0 +1,29 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.sidenav-container {
+  flex: 1;
+}
+
+.sidenav {
+  width: 250px;
+  background-color: #f8f9fa;
+  box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.main-content {
+  padding: 20px;
+  
+  &.with-sidebar {
+    margin-left: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content.with-sidebar {
+    margin-left: 0;
+  }
+}

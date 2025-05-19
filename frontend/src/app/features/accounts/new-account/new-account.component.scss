@@ -1,0 +1,109 @@
+.new-account-container {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  
+  h1 {
+    margin: 0;
+    color: #3f51b5;
+  }
+}
+
+.new-account-card {
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.account-image {
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+}
+
+.maturity-calculation {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  
+  .calculation-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  
+  .calculation-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #3f51b5;
+    margin: 0;
+  }
+}
+
+.account-type-info {
+  margin-bottom: 24px;
+  
+  .info-box {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 16px;
+    
+    h3 {
+      color: #3f51b5;
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 18px;
+    }
+    
+    ul {
+      padding-left: 20px;
+      margin: 0;
+      
+      li {
+        margin-bottom: 8px;
+        color: #555;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  
+  .submit-button {
+    min-width: 200px;
+    height: 48px;
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .form-actions .submit-button {
+    width: 100%;
+  }
+}

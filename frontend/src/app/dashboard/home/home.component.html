@@ -1,0 +1,155 @@
+<div class="dashboard-container">
+  <div class="welcome-section">
+    <h1>Welcome to iNB Internet Banking</h1>
+    <p>Your personal banking dashboard</p>
+  </div>
+  
+  <div *ngIf="loading" class="loading-section">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your account information...</p>
+  </div>
+  
+  <div *ngIf="error" class="error-section">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>There was a problem loading your account information. Please try again later.</p>
+    <button mat-raised-button color="primary" (click)="loadDashboardData()">Retry</button>
+  </div>
+  
+  <div *ngIf="!loading && !error">
+    <!-- Balance Summary Cards -->
+    <div class="balance-summary-section">
+      <div class="card total-balance-card">
+        <div class="card-content">
+          <div class="card-title">Total Balance</div>
+          <div class="balance-amount">{{formatCurrency(totalBalance)}}</div>
+          <div class="card-subtitle">Across all accounts</div>
+        </div>
+        <div class="card-icon">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+      </div>
+      
+      <div class="card savings-balance-card">
+        <div class="card-content">
+          <div class="card-title">Savings</div>
+          <div class="balance-amount">{{formatCurrency(savingsBalance)}}</div>
+          <div class="card-subtitle">Total savings balance</div>
+        </div>
+        <div class="card-icon">
+          <mat-icon>savings</mat-icon>
+        </div>
+      </div>
+      
+      <div class="card current-balance-card">
+        <div class="card-content">
+          <div class="card-title">Current</div>
+          <div class="balance-amount">{{formatCurrency(currentBalance)}}</div>
+          <div class="card-subtitle">Total current balance</div>
+        </div>
+        <div class="card-icon">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+      </div>
+      
+      <div class="card fd-balance-card">
+        <div class="card-content">
+          <div class="card-title">Fixed Deposits</div>
+          <div class="balance-amount">{{formatCurrency(fdBalance)}}</div>
+          <div class="card-subtitle">Total FD value</div>
+        </div>
+        <div class="card-icon">
+          <mat-icon>local_atm</mat-icon>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Accounts Section -->
+    <div class="section-header">
+      <h2>Your Accounts</h2>
+      <button mat-raised-button color="primary" routerLink="/accounts">View All Accounts</button>
+    </div>
+    
+    <div class="accounts-section" *ngIf="accounts.length > 0">
+      <div class="account-card" *ngFor="let account of accounts.slice(0, 3)" [ngClass]="{'savings': account.accountType === 'SAVINGS', 'current': account.accountType === 'CURRENT', 'fd': account.accountType === 'FIXED_DEPOSIT'}">
+        <div class="account-type">{{getAccountTypeName(account.accountType)}}</div>
+        <div class="account-number">{{account.accountNumber}}</div>
+        <div class="account-balance">{{formatCurrency(account.balance)}}</div>
+        <div class="account-actions">
+          <button mat-stroked-button [routerLink]="['/accounts', account.id]">View Details</button>
+          <button mat-stroked-button *ngIf="account.accountType !== 'FIXED_DEPOSIT'" [routerLink]="['/accounts', account.id, 'mini-statement']">Mini Statement</button>
+        </div>
+      </div>
+      
+      <div class="view-more" *ngIf="accounts.length > 3">
+        <a mat-button color="primary" routerLink="/accounts">View All Accounts ({{accounts.length}})</a>
+      </div>
+    </div>
+    
+    <div class="no-accounts" *ngIf="accounts.length === 0">
+      <mat-icon>info</mat-icon>
+      <p>You don't have any active accounts yet. Your account request is pending approval.</p>
+    </div>
+    
+    <!-- Recent Transactions Section -->
+    <div class="section-header" *ngIf="recentTransactions.length > 0">
+      <h2>Recent Transactions</h2>
+      <button mat-raised-button color="primary" routerLink="/accounts/detailed-statement">View Statement</button>
+    </div>
+    
+    <div class="transactions-section" *ngIf="recentTransactions.length > 0">
+      <table mat-table [dataSource]="recentTransactions" class="transaction-table">
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let transaction">{{transaction.timestamp | date:'MMM d, y'}}</td>
+        </ng-container>
+        
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let transaction">{{transaction.description}}</td>
+        </ng-container>
+        
+        <!-- Amount Column -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let transaction" [ngClass]="{'credit': transaction.transactionType === 'DEPOSIT' || transaction.transactionType === 'INTEREST_CREDITED', 'debit': transaction.transactionType !== 'DEPOSIT' && transaction.transactionType !== 'INTEREST_CREDITED'}">
+            {{transaction.transactionType === 'DEPOSIT' || transaction.transactionType === 'INTEREST_CREDITED' ? '+' : '-'}} {{formatCurrency(transaction.amount)}}
+          </td>
+        </ng-container>
+        
+        <!-- Balance Column -->
+        <ng-container matColumnDef="balance">
+          <th mat-header-cell *matHeaderCellDef>Balance</th>
+          <td mat-cell *matCellDef="let transaction">{{formatCurrency(transaction.balance)}}</td>
+        </ng-container>
+        
+        <tr mat-header-row *matHeaderRowDef="['date', 'description', 'amount', 'balance']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['date', 'description', 'amount', 'balance'];" class="transaction-row" [ngClass]="{'credit': row.transactionType === 'DEPOSIT' || row.transactionType === 'INTEREST_CREDITED', 'debit': row.transactionType !== 'DEPOSIT' && row.transactionType !== 'INTEREST_CREDITED'}"></tr>
+      </table>
+    </div>
+    
+    <!-- Quick Links Section -->
+    <div class="quick-links-section">
+      <h2>Quick Links</h2>
+      <div class="quick-links-grid">
+        <a class="quick-link-card" routerLink="/payments/bill-payment">
+          <mat-icon>receipt</mat-icon>
+          <span>Pay Bills</span>
+        </a>
+        <a class="quick-link-card" routerLink="/payments/money-transfer">
+          <mat-icon>send</mat-icon>
+          <span>Transfer Money</span>
+        </a>
+        <a class="quick-link-card" routerLink="/cheques/deposit">
+          <mat-icon>post_add</mat-icon>
+          <span>Deposit Cheque</span>
+        </a>
+        <a class="quick-link-card" routerLink="/cheques/status">
+          <mat-icon>fact_check</mat-icon>
+          <span>Check Cheque Status</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

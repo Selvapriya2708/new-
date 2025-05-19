@@ -1,0 +1,135 @@
+<div class="accounts-container">
+  <div class="accounts-header">
+    <div class="title-section">
+      <h1>My Accounts</h1>
+      <p *ngIf="accounts.length > 0">Total Balance: <span class="total-balance">{{ getFormattedBalance(getTotalBalance()) }}</span></p>
+    </div>
+    <button mat-raised-button color="primary" (click)="requestNewAccount()">
+      <mat-icon>add</mat-icon>
+      Request New Account
+    </button>
+  </div>
+
+  <mat-card class="filter-card">
+    <div class="filter-controls">
+      <span class="filter-label">Filter by:</span>
+      <div class="account-type-filters">
+        <button mat-button 
+                *ngFor="let type of accountTypes" 
+                [class.active]="selectedType === type.value"
+                (click)="filterAccountsByType(type.value)">
+          {{ type.label }}
+        </button>
+      </div>
+    </div>
+  </mat-card>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading your accounts...</p>
+  </div>
+
+  <div *ngIf="!loading && filteredAccounts.length === 0" class="no-accounts">
+    <mat-icon>account_balance</mat-icon>
+    <h3>No accounts found</h3>
+    <p *ngIf="selectedType === 'ALL'">You don't have any accounts yet.</p>
+    <p *ngIf="selectedType !== 'ALL'">You don't have any {{ getAccountTypeLabel(selectedType).toLowerCase() }}.</p>
+  </div>
+
+  <div *ngIf="!loading && filteredAccounts.length > 0" class="accounts-list">
+    <mat-card *ngFor="let account of filteredAccounts" class="account-card" [ngClass]="{
+      'savings-account': account.type === 'SAVINGS',
+      'current-account': account.type === 'CURRENT',
+      'fixed-deposit': account.type === 'FIXED_DEPOSIT'
+    }">
+      <div class="account-header">
+        <div class="account-type-indicator">
+          <mat-icon>{{ account.type === 'SAVINGS' ? 'savings' : (account.type === 'CURRENT' ? 'account_balance_wallet' : 'lock_clock') }}</mat-icon>
+        </div>
+        <div class="account-info">
+          <h2>{{ account.type === 'SAVINGS' ? 'Savings Account' : (account.type === 'CURRENT' ? 'Current Account' : 'Fixed Deposit') }}</h2>
+          <p class="account-number">{{ account.accountNumber }}</p>
+        </div>
+      </div>
+
+      <div class="account-details">
+        <div class="balance-section">
+          <span class="balance-label">Available Balance</span>
+          <span class="balance-amount">{{ getFormattedBalance(account.balance) }}</span>
+        </div>
+
+        <div class="account-specific-details">
+          <div *ngIf="account.type === 'SAVINGS'" class="detail-item">
+            <span class="detail-label">Interest Rate</span>
+            <span class="detail-value">{{ account.interestRate }}% p.a.</span>
+          </div>
+          <div *ngIf="account.type === 'SAVINGS'" class="detail-item">
+            <span class="detail-label">Minimum Balance</span>
+            <span class="detail-value">₹{{ account.minimumBalance }}</span>
+          </div>
+          <div *ngIf="account.type === 'CURRENT' && account.overdraftLimit" class="detail-item">
+            <span class="detail-label">Overdraft Limit</span>
+            <span class="detail-value">₹{{ account.overdraftLimit }}</span>
+          </div>
+          <div *ngIf="account.type === 'CURRENT' && account.overdraftLimit" class="detail-item">
+            <span class="detail-label">Overdraft Interest Rate</span>
+            <span class="detail-value">{{ account.overdraftInterestRate }}% p.a.</span>
+          </div>
+          <div *ngIf="account.type === 'FIXED_DEPOSIT'" class="detail-item">
+            <span class="detail-label">Term</span>
+            <span class="detail-value">{{ account.term }} months</span>
+          </div>
+          <div *ngIf="account.type === 'FIXED_DEPOSIT'" class="detail-item">
+            <span class="detail-label">Interest Rate</span>
+            <span class="detail-value">{{ account.interestRate }}% p.a.</span>
+          </div>
+          <div *ngIf="account.type === 'FIXED_DEPOSIT'" class="detail-item">
+            <span class="detail-label">Maturity Date</span>
+            <span class="detail-value">{{ account.maturityDate | date }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="account-actions">
+        <button mat-button color="primary" (click)="navigateToAccountDetail(account.id)">
+          <mat-icon>visibility</mat-icon>
+          View Details
+        </button>
+        <button mat-button color="primary" (click)="navigateToMiniStatement(account.id)">
+          <mat-icon>receipt</mat-icon>
+          Mini Statement
+        </button>
+        <button mat-button color="primary" (click)="navigateToDetailedStatement(account.id)">
+          <mat-icon>list_alt</mat-icon>
+          Detailed Statement
+        </button>
+      </div>
+    </mat-card>
+  </div>
+
+  <mat-card class="benefits-card">
+    <h2>Account Benefits</h2>
+    <div class="benefits-grid">
+      <div class="benefit-item">
+        <mat-icon>security</mat-icon>
+        <h3>Secure Banking</h3>
+        <p>Bank securely online with best-in-class security features</p>
+      </div>
+      <div class="benefit-item">
+        <mat-icon>speed</mat-icon>
+        <h3>Fast Transactions</h3>
+        <p>Experience quick money transfers and real-time updates</p>
+      </div>
+      <div class="benefit-item">
+        <mat-icon>support_agent</mat-icon>
+        <h3>24/7 Support</h3>
+        <p>Get assistance anytime with our round-the-clock customer service</p>
+      </div>
+      <div class="benefit-item">
+        <mat-icon>notifications</mat-icon>
+        <h3>Instant Alerts</h3>
+        <p>Stay informed with transaction alerts and account notifications</p>
+      </div>
+    </div>
+  </mat-card>
+</div>

@@ -1,0 +1,235 @@
+.cheque-status-container {
+  padding: 20px 0;
+}
+
+.page-header {
+  margin-bottom: 30px;
+  
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 5px;
+    color: #333;
+  }
+  
+  .subtitle {
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+.content-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  
+  h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+}
+
+.status-workflow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.status-step {
+  flex: 1;
+  min-width: 150px;
+  text-align: center;
+  padding: 15px;
+  
+  .status-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    
+    mat-icon {
+      font-size: 30px;
+      height: 30px;
+      width: 30px;
+      color: white;
+    }
+    
+    &.not-received {
+      background-color: #9e9e9e;
+    }
+    
+    &.received {
+      background-color: #2196f3;
+    }
+    
+    &.sent-for-clearance {
+      background-color: #ff9800;
+    }
+    
+    &.cleared {
+      background-color: #4caf50;
+    }
+    
+    &.bounced {
+      background-color: #f44336;
+    }
+  }
+  
+  .status-label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #333;
+  }
+  
+  .status-description {
+    font-size: 0.9rem;
+    color: #666;
+  }
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filters-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  
+  mat-form-field {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  p {
+    margin-top: 15px;
+    color: #666;
+  }
+  
+  button {
+    margin-top: 15px;
+  }
+  
+  mat-icon {
+    font-size: 40px;
+    height: 40px;
+    width: 40px;
+    margin-bottom: 10px;
+  }
+}
+
+.no-cheques {
+  text-align: center;
+  padding: 30px 0;
+  
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: #9e9e9e;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    color: #757575;
+    margin-bottom: 20px;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.cheque-table {
+  width: 100%;
+  
+  .cheque-status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    
+    &.not-received {
+      background-color: #e0e0e0;
+      color: #424242;
+    }
+    
+    &.received {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    &.sent-for-clearance {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+    
+    &.cleared {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    &.bounced {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  }
+  
+  .bounce-reason {
+    font-size: 0.8rem;
+    color: #c62828;
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .status-workflow {
+    flex-direction: column;
+  }
+  
+  .status-step {
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    
+    .status-icon {
+      margin: 0 15px 0 0;
+    }
+  }
+  
+  .filters-header {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    button {
+      margin-top: 10px;
+      align-self: flex-start;
+    }
+  }
+}

@@ -1,0 +1,81 @@
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 450px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.card-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 20px;
+}
+
+.auth-illustration {
+  margin-bottom: 20px;
+  text-align: center;
+  
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+}
+
+.invalid-feedback {
+  color: var(--danger-color);
+  font-size: 0.825rem;
+  margin-top: 4px;
+}
+
+.auth-footer {
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.secure-banking-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.input-group-text {
+  background-color: var(--light-color);
+  color: var(--primary-color);
+  border-right: none;
+  
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.input-group .form-control {
+  border-left: none;
+}
+
+@media (max-width: 576px) {
+  .auth-card {
+    margin: 0 15px;
+  }
+}
